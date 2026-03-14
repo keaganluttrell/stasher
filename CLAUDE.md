@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## What This Is
 
-**braindump** — a minimal git-backed knowledge base. AI agents write markdown files to `docs/` via the GitHub API; humans read and edit them in a SvelteKit SPA hosted on GitHub Pages.
+**stasher** — a minimal git-backed knowledge base. AI agents write markdown files to `docs/` via the GitHub API; humans read and edit them in a SvelteKit SPA hosted on GitHub Pages.
 
 ## Development Commands
 

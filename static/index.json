@@ -81,6 +81,69 @@
     "excerpt": "AutoProxy Technical Specification v2: On-Site + Corporate\n\nStatus: Draft\n\nRevision Context\n\nv1 of this spec designed AutoProxy exclusively for on-site operations — single-property message classification, routing, filtering, and auto-response. This revision extends the architecture to serve **corporate/HQ use cases** where regional managers and executives oversee multiple properties through a single pane of glass.\n\nThe core principle remains: AutoProxy is asynchronous, transparent, and degrades g"
   },
   {
+    "slug": "projects/soloscaler/brand-identity",
+    "title": "Soloscaler Brand Identity Framework",
+    "description": "Core values, brand personality, voice guidelines, messaging pillars, and tagline options for the Soloscaler brand",
+    "tags": "soloscaler, brand, identity, voice, values, messaging",
+    "group": "projects/soloscaler",
+    "date": "2026-03-14T00:00:00.000Z",
+    "excerpt": "Core Values\n\n1. **Leverage Over Labor** -- Find the lever, not the grind. If the answer is \"hire more people,\" we haven't looked hard enough.\n2. **Radical Honesty** -- \"You don't need this\" is a valid recommendation. Trust is the product; everything else is a feature.\n3. **Builder's Mentality** -- Strategy without execution is a hobby. Every engagement produces something tangible.\n4. **Right-Sized by Design** -- Simplicity isn't a limitation, it's a design philosophy. Reject the enterprise-lite "
+  },
+  {
+    "slug": "projects/soloscaler/brand-positioning",
+    "title": "Soloscaler Brand Positioning",
+    "description": "Positioning statement and strategic pillars for the Soloscaler brand targeting small businesses at $200K-$5M revenue",
+    "tags": "soloscaler, brand, positioning, strategy, small-business",
+    "group": "projects/soloscaler",
+    "date": "2026-03-14T00:00:00.000Z",
+    "excerpt": "The Position\n\n**For** small business owners and operators stuck between DIY chaos and unaffordable enterprise solutions, **Soloscaler** is the strategic partner and toolmaker **who** delivers big-company capability at one-person scale, **because** modern AI and focused tooling have made the 50-person team obsolete for most small businesses.\n\nThe Core Tension\n\nThere is a massive, underserved gap in the market:\n\n- **Below**: Freelancers on Fiverr and Upwork who execute tasks but don't think strate"
+  },
+  {
+    "slug": "projects/soloscaler/brand-story",
+    "title": "Soloscaler Brand Story",
+    "description": "Five-act narrative arc for the Soloscaler brand with elevator, networking, and pitch versions",
+    "tags": "soloscaler, brand, story, narrative, origin",
+    "group": "projects/soloscaler",
+    "date": "2026-03-14T00:00:00.000Z",
+    "excerpt": "The Narrative Arc\n\nAct 1: The Broken Promise\n\nSmall businesses have been sold a lie: \"To grow, you need to hire. To compete, you need a team. To scale, you need an enterprise stack.\" For a long time it was true. Growth meant headcount, headcount meant overhead, and the economics of scaling didn't work at small business size.\n\nEnterprise software companies built for Fortune 500 problems and offered \"small business plans\" that were lobotomized versions of the same bloated product. Agencies charged"
+  },
+  {
+    "slug": "projects/soloscaler/competitive-positioning",
+    "title": "Soloscaler Competitive Positioning",
+    "description": "Head-to-head positioning against freelancers, agencies, SaaS tools, consultants, and business coaches with objection-handling scripts",
+    "tags": "soloscaler, brand, competitive, positioning, sales",
+    "group": "projects/soloscaler",
+    "date": "2026-03-14T00:00:00.000Z",
+    "excerpt": "Soloscaler doesn't fit neatly into an existing category. The brand sits at an intersection nobody else occupies: high strategic value AND high execution capability, at small-business-friendly economics.\n\nvs. Freelancers\n\nFreelancers execute tasks but don't think strategically. Narrow skill sets, no systems thinking, no lasting capability transfer.\n\n**Soloscaler difference:** Strategic thinking plus execution in one person. Not \"tell me what to build\" but \"let me tell you what needs to be built, "
+  },
+  {
+    "slug": "projects/soloscaler/name-exploration",
+    "title": "Soloscaler Name Exploration",
+    "description": "Evaluation of \"Soloscaler\" brand name against 10+ alternatives with scoring matrix and recommendation to keep the name",
+    "tags": "soloscaler, brand, naming, strategy",
+    "group": "projects/soloscaler",
+    "date": "2026-03-14T00:00:00.000Z",
+    "excerpt": "Verdict: Keep \"Soloscaler\"\n\nThe name wins on every dimension that matters. It's an invented category word that Keagan can own entirely, and category creators always win in brand strategy.\n\nWhy \"Soloscaler\" Works\n\n- **Category creation**: The word doesn't exist in the market. Owning a new term means owning the category.\n- **Self-explanatory**: \"Solo\" + \"scaler\" -- anyone can guess the meaning on first hearing.\n- **Dual identity**: Describes what Keagan is AND what he helps clients become. Both cr"
+  },
+  {
+    "slug": "projects/soloscaler/product-brand-fit",
+    "title": "Soloscaler Product-Brand Fit Analysis",
+    "description": "Strategic analysis of Stacker and AutoProxy brand fit, hospitality tension resolution, four new product recommendations, and go-to-market sequence",
+    "tags": "soloscaler, brand, stacker, autoproxy, product-strategy, gtm, portfolio",
+    "group": "projects/soloscaler",
+    "date": "2026-03-14T00:00:00.000Z",
+    "excerpt": "Brand Fit Ratings\n\n- **AutoProxy: Perfect.** The tagline made into software. Counter-positioned against every AI messaging tool. The market gap is real and defensible.\n- **Stacker: Strong.** Composable domain architecture and single-business philosophy align cleanly with Right-Sized by Design and Self-Sufficiency. Risk is scope -- 12+ domains is a lot of surface for one builder.\n\nHospitality Tension Resolution\n\nLead with hospitality. Never apologize for the vertical. Expand deliberately.\n\n- Vert"
+  },
+  {
+    "slug": "projects/soloscaler/validation-pipeline",
+    "title": "Soloscaler Product Validation Pipeline",
+    "description": "Four-wave validation pipeline with kill gates, agent mappings, and execution playbook for validating any Soloscaler product idea",
+    "tags": "soloscaler, validation, pipeline, process, agents, kill-criteria, gtm",
+    "group": "projects/soloscaler",
+    "date": "2026-03-14T00:00:00.000Z",
+    "excerpt": "Pipeline Philosophy\n\nDesigned for a solo operator. Three principles:\n\n1. **Kill fast, build slow.** Front-load steps that produce kill signals. If a product should die, it dies in Week 1, not Week 6.\n2. **Parallel by default.** Independent research streams run simultaneously. Sequential gates only where one step's output is a hard dependency.\n3. **Stashable deliverables.** Every step produces a standalone markdown document committed to the knowledge base. No work is lost, even for killed product"
+  },
+  {
     "slug": "projects/stacker/stacker",
     "title": "Amos (Stacker): Project README",
     "description": "Overview of the Amos hospitality PMS built with Ash Framework on Elixir/Phoenix, including setup instructions, domain architecture, and project structure.",
@@ -88,24 +151,6 @@
     "group": "projects/stacker",
     "date": "2025-03-14T00:00:00.000Z",
     "excerpt": "Amos\n\n> Hospitality property management system built with the Ash Framework on Elixir/Phoenix.\n\nAmos is a ground-up rebuild of a prior NestJS system (\"Stacker\"), preserving the domain model while leveraging Ash's declarative resource system. It serves as the single source of truth for niche hospitality operations -- a single-business PMS, not a multi-tenant SaaS platform.\n\nThis repository contains the API backend only. No frontend code lives here.\n\nTech Stack\n\n- **Elixir 1.18+** / **Phoenix 1.8*"
-  },
-  {
-    "slug": "research/COMMS_DEFERRED",
-    "title": "Comms Domain — Deferred Work",
-    "description": "Deferred real-time and notification features for the Comms domain Phase 13, including PubSub, presence, and member anonymization.",
-    "tags": "comms, real-time, pubsub, notifications, phoenix-channels, deferred",
-    "group": "research",
-    "date": "2025-03-14T00:00:00.000Z",
-    "excerpt": "Comms Domain — Deferred Work\n\nPhase 13: Real-time & Notifications\n\nPhase 12 builds the data model only. Phase 13 adds the real-time layer:\n\n- **Ash.Notifier.PubSub** on Message (publish create/destroy to channel topics)\n- **Phoenix Channels** — `UserSocket` (JWT auth), `ChannelChannel` (per-channel topic handler)\n- **Phoenix.Presence** — online/offline tracking, typing indicators\n- **Unread counts** — module calculation or custom query spanning Message + ChannelMember (`WHERE id > last_read_mess"
-  },
-  {
-    "slug": "research/COMMS_REALTIME_BACKEND",
-    "title": "Comms Domain: Real-Time Backend Implementation Research",
-    "description": "Research report on real-time messaging architecture using Phoenix Channels, PubSub, Presence, and Ash integration for the Amos Comms domain.",
-    "tags": "comms, real-time, phoenix-channels, pubsub, presence, websocket, ash, elixir, research",
-    "group": "research",
-    "date": "2025-03-14T00:00:00.000Z",
-    "excerpt": "Comms Domain: Real-Time Backend Implementation Research\n\nResearch report for Phase 12 (Comms domain) covering real-time messaging architecture decisions specific to the Amos codebase, Ash Framework, and Phoenix.\n\n---\n\n1. Phoenix Channels vs LiveView for Real-Time\n\nRecommendation: Phoenix Channels (not LiveView)\n\n**LiveView is ruled out.** Amos is an API-first backend with no frontend code in this repo (`AmosWeb.Router` serves only a JSON API pipeline). LiveView requires server-rendered HTML temp"
   },
   {
     "slug": "research/HOUSEKEEPING_MAINTENANCE_TRENDS",

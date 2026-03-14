@@ -15,7 +15,9 @@ import matter from 'gray-matter';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const DOCS_DIR = path.join(__dirname, '..', 'docs');
-const OUT_FILE = path.join(__dirname, '..', 'static', 'index.json');
+const STATIC_DIR = path.join(__dirname, '..', 'static');
+const OUT_FILE = path.join(STATIC_DIR, 'index.json');
+const DOCS_OUT_DIR = path.join(STATIC_DIR, 'docs');
 
 function walk(dir, base = '') {
   const entries = fs.readdirSync(dir, { withFileTypes: true });
@@ -43,7 +45,9 @@ function walk(dir, base = '') {
         group: frontmatter.group ?? slug.split('/')[0] ?? 'uncategorised',
         date: frontmatter.date ?? null,
         // Trim content for the index — first 500 chars is enough for search
-        excerpt: content.replace(/#+\s/g, '').trim().slice(0, 500)
+        excerpt: content.replace(/#+\s/g, '').trim().slice(0, 500),
+        // Keep full raw content for individual doc files (not included in index.json)
+        _raw: raw
       });
     }
   }
@@ -52,7 +56,19 @@ function walk(dir, base = '') {
 }
 
 const index = walk(DOCS_DIR);
-fs.mkdirSync(path.dirname(OUT_FILE), { recursive: true });
-fs.writeFileSync(OUT_FILE, JSON.stringify(index, null, 2));
 
-console.log(`✓ Indexed ${index.length} documents → static/index.json`);
+// Write individual doc JSON files to static/docs/<slug>.json
+for (const doc of index) {
+  const docFile = path.join(DOCS_OUT_DIR, `${doc.slug}.json`);
+  fs.mkdirSync(path.dirname(docFile), { recursive: true });
+  fs.writeFileSync(docFile, JSON.stringify({ content: doc._raw }));
+}
+
+console.log(`✓ Wrote ${index.length} doc files → static/docs/`);
+
+// Strip _raw from index entries before writing the search index
+const cleanIndex = index.map(({ _raw, ...rest }) => rest);
+fs.mkdirSync(path.dirname(OUT_FILE), { recursive: true });
+fs.writeFileSync(OUT_FILE, JSON.stringify(cleanIndex, null, 2));
+
+console.log(`✓ Indexed ${cleanIndex.length} documents → static/index.json`);

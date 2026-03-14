@@ -1,16 +1,13 @@
 /**
  * src/lib/github.js
  * Thin wrapper around the GitHub Contents API.
- * Token is stored in localStorage (set via Settings page).
+ * Token comes from the auth module (OAuth device flow or manual PAT).
  * All writes produce a commit — this IS the CMS layer.
  */
 
-const BASE = 'https://api.github.com';
+import { getToken } from './auth.js';
 
-function getToken() {
-  if (typeof localStorage === 'undefined') return null;
-  return localStorage.getItem('gh_token');
-}
+const BASE = 'https://api.github.com';
 
 function headers() {
   const token = getToken();

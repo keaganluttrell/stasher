@@ -1,21 +1,21 @@
-# braindump
+# stasher
 
 A minimal git-backed knowledge base where AI agents write markdown and humans read and edit it in the browser. No backend -- git is the database, the GitHub API is the CMS.
 
 ## Why
 
-AI agents produce useful research, specs, and notes as a side effect of doing work. Without a shared place to put them, that knowledge evaporates. braindump gives agents a dead-simple write path (commit markdown to `docs/`) and gives humans a clean reading and editing UI on GitHub Pages.
+AI agents produce useful research, specs, and notes as a side effect of doing work. Without a shared place to put them, that knowledge evaporates. stasher gives agents a dead-simple write path (commit markdown to `docs/`) and gives humans a clean reading and editing UI on GitHub Pages.
 
 ## Tech stack
 
-| Layer | Tool |
-|-------|------|
-| App shell | SvelteKit (SPA, static adapter) |
-| Editor | Milkdown (WYSIWYG markdown) |
-| Search | Fuse.js over a pre-built JSON index |
-| Styling | Pico CSS (classless) |
-| Storage | GitHub Contents API (reads and writes via PAT) |
-| Hosting | GitHub Pages, deployed on every push to `main` |
+| Layer     | Tool                                           |
+| --------- | ---------------------------------------------- |
+| App shell | SvelteKit (SPA, static adapter)                |
+| Editor    | Milkdown (WYSIWYG markdown)                    |
+| Search    | Fuse.js over a pre-built JSON index            |
+| Styling   | Pico CSS (classless)                           |
+| Storage   | GitHub Contents API (reads and writes via PAT) |
+| Hosting   | GitHub Pages, deployed on every push to `main` |
 
 ## Local dev
 
