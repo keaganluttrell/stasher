@@ -1,0 +1,119 @@
+[
+  {
+    "slug": "projects/autoproxy/AI_ARCHITECTURE",
+    "title": "AutoProxy: AI Message Intelligence Architecture",
+    "description": "Buildable specification for AutoProxy's AI/ML layer covering model selection, prompt design, RAG with pgvector, classification pipeline, cost modeling, and Elixir process topology.",
+    "tags": "autoproxy, ai, llm, architecture, elixir, pgvector, rag, classification, cost-modeling",
+    "group": "projects/autoproxy",
+    "date": "2025-03-14T00:00:00.000Z",
+    "excerpt": "AutoProxy: AI Message Intelligence Architecture\n\nExecutive Summary\n\nAutoProxy is a message intelligence layer that intercepts every message in the Amos Comms domain, classifies it, routes it, and optionally generates or suggests responses. It operates in two modes: on-site (single property operations) and corporate/HQ (multi-property oversight). The system is built entirely in Elixir, uses external LLMs via HTTP APIs, and stores all knowledge in Postgres (including pgvector for embeddings).\n\nThi"
+  },
+  {
+    "slug": "projects/autoproxy/GOVERNANCE",
+    "title": "AutoProxy: Automation Governance Framework",
+    "description": "Risk framework, kill switches, confidence thresholds, audit trail, compliance requirements, and phased rollout governance for AutoProxy.",
+    "tags": "autoproxy, governance, risk, compliance, kill-switch, confidence-thresholds, audit, rollout",
+    "group": "projects/autoproxy",
+    "date": "2025-03-14T00:00:00.000Z",
+    "excerpt": "AutoProxy: Automation Governance Framework\n\n**Version:** 1.0\n**Date:** 2026-03-13\n**Status:** Draft\n\n---\n\n1. Capability Value Assessment\n\nShip Order and Verdicts\n\n| | Capability | Value-to-Risk | Verdict |\n|---|-----------|---------------|---------|\n| 1 | Message Classification | HIGH | **APPROVE** — shadow mode validation first |\n| 2 | Staff Routing | HIGH | **APPROVE** — HR/legal/financial/executive channels permanently excluded |\n| 3 | Focus Mode / Batching | HIGH | **APPROVE** — lowest risk,"
+  },
+  {
+    "slug": "projects/autoproxy/MARKET_RESEARCH",
+    "title": "AutoProxy: Market Research",
+    "description": "On-site competitive landscape analysis, shoulder-tapping problem quantification, and differentiation strategy for AutoProxy.",
+    "tags": "autoproxy, market-research, competitive-analysis, hospitality, ai, messaging, differentiation",
+    "group": "projects/autoproxy",
+    "date": "2025-03-14T00:00:00.000Z",
+    "excerpt": "AutoProxy: Market Research\n\n**Version:** 1.0\n**Date:** 2026-03-13\n**Status:** Draft\n\n---\n\nExecutive Summary\n\nAutoProxy targets a real, well-documented pain point with strong tailwinds. The competitive landscape is evolving fast, but the hospitality-vertical angle is the primary strategic advantage. Generic AI assistants increase noise and cognitive load; a domain-aware proxy that understands hospitality operations can actually reduce it. That distinction is the entire thesis.\n\n---\n\n1. Market Tre"
+  },
+  {
+    "slug": "projects/autoproxy/MARKET_RESEARCH_CORPORATE",
+    "title": "AutoProxy: Corporate/HQ Market Viability Assessment",
+    "description": "Market viability analysis for expanding AutoProxy from on-site operations to corporate/HQ use cases including executive overload and multi-property communication.",
+    "tags": "autoproxy, market-research, corporate, multi-property, executive, competitive-analysis, hospitality",
+    "group": "projects/autoproxy",
+    "date": "2025-03-14T00:00:00.000Z",
+    "excerpt": "AutoProxy Corporate/HQ Market Viability Assessment\n\n**Date**: 2026-03-13\n**Scope**: Expansion of AutoProxy from on-site hospitality operations to corporate/HQ use cases\n**Verdict**: Strong market signal, but the competitive landscape shifts dramatically when you move upstream\n\n---\n\nExecutive Summary\n\nThe corporate communication overload problem is real, quantified, and growing. C-level executives receive 3x more messages than individual contributors. Knowledge workers lose 5 working weeks per ye"
+  },
+  {
+    "slug": "projects/autoproxy/PRD",
+    "title": "AutoProxy: Product Requirements Document",
+    "description": "Product requirements for AutoProxy v2.0 covering 10 personas, 22 user stories, RICE-scored prioritization, and phased rollout plan.",
+    "tags": "autoproxy, prd, product-requirements, user-stories, personas, prioritization, roadmap",
+    "group": "projects/autoproxy",
+    "date": "2025-03-14T00:00:00.000Z",
+    "excerpt": "AutoProxy: AI-Powered Message Proxy Layer\n\nProduct Requirements Document v2.0\n\n---\n\n1. Problem Statement\n\nThe Shoulder-Tapping Tax\n\nHospitality operations run on interruptions. Every question, status update, and request requires finding the right person and pulling them out of whatever they are doing. This tax compounds at every level of the organization:\n\n**On-Site (Property Level)**\n- A housekeeper needs to know if a late checkout was approved. She walks to the front desk. The front desk agent"
+  },
+  {
+    "slug": "projects/autoproxy/README",
+    "title": "AutoProxy: Product Overview",
+    "description": "Overview of the AutoProxy AI-powered message proxy layer for hospitality operations, including document index, key decisions, and build order.",
+    "tags": "autoproxy, overview, ai, messaging, hospitality, product",
+    "group": "projects/autoproxy",
+    "date": "2025-03-14T00:00:00.000Z",
+    "excerpt": "AutoProxy — Product Research\n\n**Concept:** An AI-powered message proxy layer for both on-site hotel operations and corporate/HQ teams. Routes messages intelligently, filters noise, suggests responses, auto-answers high-confidence factual queries, detects cross-property patterns, triages reports, and generates executive digests. Your personal secretary — whether you're on the floor or in the boardroom.\n\n**Positioning:** \"You only see the messages that need you.\"\n\n**Verdict:** Worth pursuing. Mark"
+  },
+  {
+    "slug": "projects/autoproxy/ROADMAP",
+    "title": "AutoProxy: Implementation Roadmap",
+    "description": "Seven-phase implementation roadmap for AutoProxy covering on-site foundation and corporate extension, with resource estimates and sequencing.",
+    "tags": "autoproxy, roadmap, implementation, phases, planning, on-site, corporate",
+    "group": "projects/autoproxy",
+    "date": "2025-03-14T00:00:00.000Z",
+    "excerpt": "AutoProxy: Implementation Roadmap\n\n**Version:** 2.0\n**Date:** 2026-03-13\n**Status:** Draft\n**Supersedes:** ROADMAP.md v1.0\n\n---\n\nWhat Changed (v1 → v2)\n\nv1.0 assumed single-property, on-site-only deployment. v2 integrates six corporate/HQ capabilities:\n\n1. Cross-property pattern detection\n2. Report triage (classify, surface anomalies, route to executive)\n3. Campaign knowledge base (brief → knowledge entries → auto-answer property questions)\n4. Executive digest (daily/weekly AI summary, exception"
+  },
+  {
+    "slug": "projects/autoproxy/TECHNICAL_SPEC",
+    "title": "AutoProxy: Technical Specification",
+    "description": "On-site system architecture, data model, message processing flow, OTP process design, and Ash framework integration for AutoProxy.",
+    "tags": "autoproxy, technical-spec, architecture, ash, elixir, otp, data-model",
+    "group": "projects/autoproxy",
+    "date": "2025-03-14T00:00:00.000Z",
+    "excerpt": "AutoProxy Technical Specification\n\nStatus: Draft\n\nProblem Statement\n\nHospitality operations suffer from constant \"shoulder tapping\" -- staff interrupt each other with questions that could be answered from existing knowledge, routed to the right person automatically, or batched until a natural break. The result is fragmented attention, delayed responses, and operational overhead that scales linearly with headcount.\n\nAutoProxy is an intelligent message proxy layer that sits inside Amos's Comms dom"
+  },
+  {
+    "slug": "projects/autoproxy/TECHNICAL_SPEC_V2",
+    "title": "AutoProxy: Technical Specification v2 — On-Site + Corporate",
+    "description": "Extended technical specification adding corporate/HQ capabilities including cross-property intelligence, executive digests, and portfolio-scope processing.",
+    "tags": "autoproxy, technical-spec, architecture, corporate, cross-property, digest, portfolio",
+    "group": "projects/autoproxy",
+    "date": "2025-03-14T00:00:00.000Z",
+    "excerpt": "AutoProxy Technical Specification v2: On-Site + Corporate\n\nStatus: Draft\n\nRevision Context\n\nv1 of this spec designed AutoProxy exclusively for on-site operations — single-property message classification, routing, filtering, and auto-response. This revision extends the architecture to serve **corporate/HQ use cases** where regional managers and executives oversee multiple properties through a single pane of glass.\n\nThe core principle remains: AutoProxy is asynchronous, transparent, and degrades g"
+  },
+  {
+    "slug": "projects/stacker/stacker",
+    "title": "Amos (Stacker): Project README",
+    "description": "Overview of the Amos hospitality PMS built with Ash Framework on Elixir/Phoenix, including setup instructions, domain architecture, and project structure.",
+    "tags": "amos, stacker, pms, hospitality, elixir, phoenix, ash-framework, readme",
+    "group": "projects/stacker",
+    "date": "2025-03-14T00:00:00.000Z",
+    "excerpt": "Amos\n\n> Hospitality property management system built with the Ash Framework on Elixir/Phoenix.\n\nAmos is a ground-up rebuild of a prior NestJS system (\"Stacker\"), preserving the domain model while leveraging Ash's declarative resource system. It serves as the single source of truth for niche hospitality operations -- a single-business PMS, not a multi-tenant SaaS platform.\n\nThis repository contains the API backend only. No frontend code lives here.\n\nTech Stack\n\n- **Elixir 1.18+** / **Phoenix 1.8*"
+  },
+  {
+    "slug": "research/COMMS_DEFERRED",
+    "title": "Comms Domain — Deferred Work",
+    "description": "Deferred real-time and notification features for the Comms domain Phase 13, including PubSub, presence, and member anonymization.",
+    "tags": "comms, real-time, pubsub, notifications, phoenix-channels, deferred",
+    "group": "research",
+    "date": "2025-03-14T00:00:00.000Z",
+    "excerpt": "Comms Domain — Deferred Work\n\nPhase 13: Real-time & Notifications\n\nPhase 12 builds the data model only. Phase 13 adds the real-time layer:\n\n- **Ash.Notifier.PubSub** on Message (publish create/destroy to channel topics)\n- **Phoenix Channels** — `UserSocket` (JWT auth), `ChannelChannel` (per-channel topic handler)\n- **Phoenix.Presence** — online/offline tracking, typing indicators\n- **Unread counts** — module calculation or custom query spanning Message + ChannelMember (`WHERE id > last_read_mess"
+  },
+  {
+    "slug": "research/COMMS_REALTIME_BACKEND",
+    "title": "Comms Domain: Real-Time Backend Implementation Research",
+    "description": "Research report on real-time messaging architecture using Phoenix Channels, PubSub, Presence, and Ash integration for the Amos Comms domain.",
+    "tags": "comms, real-time, phoenix-channels, pubsub, presence, websocket, ash, elixir, research",
+    "group": "research",
+    "date": "2025-03-14T00:00:00.000Z",
+    "excerpt": "Comms Domain: Real-Time Backend Implementation Research\n\nResearch report for Phase 12 (Comms domain) covering real-time messaging architecture decisions specific to the Amos codebase, Ash Framework, and Phoenix.\n\n---\n\n1. Phoenix Channels vs LiveView for Real-Time\n\nRecommendation: Phoenix Channels (not LiveView)\n\n**LiveView is ruled out.** Amos is an API-first backend with no frontend code in this repo (`AmosWeb.Router` serves only a JSON API pipeline). LiveView requires server-rendered HTML temp"
+  },
+  {
+    "slug": "research/HOUSEKEEPING_MAINTENANCE_TRENDS",
+    "title": "Housekeeping and Maintenance Operations: Industry Research Report",
+    "description": "Comprehensive industry research on housekeeping and maintenance operations across hotels, vacation rentals, and resorts to inform the Amos Tasks domain.",
+    "tags": "housekeeping, maintenance, hospitality, operations, research, tasks, vacation-rentals, resorts, competitive-landscape",
+    "group": "research",
+    "date": "2025-03-14T00:00:00.000Z",
+    "excerpt": "Housekeeping & Maintenance Operations: Industry Research Report\n\n**Date:** 2026-03-13\n**Scope:** Hotels, Vacation Rentals, Resorts\n**Purpose:** Inform product strategy for the Tasks domain in Amos PMS\n\n---\n\nTable of Contents\n\n1. [Operational Workflows](#1-operational-workflows)\n2. [Technology Trends](#2-technology-trends)\n3. [Staffing Models](#3-staffing-models)\n4. [Quality Assurance](#4-quality-assurance)\n5. [Preventive vs Reactive Maintenance](#5-preventive-vs-reactive-maintenance)\n6. [Guest-F"
+  }
+]

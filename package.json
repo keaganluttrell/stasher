@@ -1,0 +1,31 @@
+{
+  "name": "stasher",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite dev",
+    "build": "vite build",
+    "preview": "vite preview",
+    "index": "node scripts/index.js"
+  },
+  "dependencies": {
+    "@milkdown/core": "^7.6.2",
+    "@milkdown/kit": "^7.6.2",
+    "@milkdown/theme-nord": "^7.6.2",
+    "@picocss/pico": "^2.1.1",
+    "fuse.js": "^7.1.0",
+    "marked": "^15.0.7"
+  },
+  "devDependencies": {
+    "@sveltejs/adapter-static": "^3.0.1",
+    "@sveltejs/kit": "^2.5.0",
+    "@sveltejs/vite-plugin-svelte": "^3.0.0",
+    "gray-matter": "^4.0.3",
+    "svelte": "^4.2.19",
+    "vite": "^5.4.0"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}
