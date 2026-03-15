@@ -26,8 +26,7 @@
   function buildShortcuts(isDoc, ed, can) {
     const items = [
       { key: 'K', mod: true, label: 'Search', action: () => onSearch(), icon: 'search' },
-      { key: 'H', mod: true, shift: true, label: 'Home', action: () => goto(base + '/'), icon: 'home' },
-      { key: '.', mod: true, label: 'Settings', action: () => goto(base + '/settings'), icon: 'settings' },
+      { key: 'I', mod: true, label: 'Home', action: () => goto(base + '/'), icon: 'home' },
       { key: 'J', mod: true, label: 'Create', action: () => goto(base + '/doc/new'), icon: 'create' },
     ];
 
@@ -39,6 +38,9 @@
       items.push({ key: 'S', mod: true, label: 'Save', action: () => $editorState.save(), icon: 'save' });
       items.push({ key: 'Esc', label: 'Cancel', action: () => $editorState.cancelEdit(), icon: 'cancel', noMod: true });
     }
+
+    // Settings always last
+    items.push({ key: '.', mod: true, label: 'Settings', action: () => goto(base + '/settings'), icon: 'settings' });
 
     return items;
   }
@@ -55,10 +57,15 @@
   <!-- Logo -->
   <a href="{base}/" class="keybar-logo no-underline" aria-label="stasher home">
     <span class="keybar-logo-text">stasher</span>
-    {#if $authState === 'authenticated' && $user}
-      <img src={$user.avatar_url} alt={$user.login} class="keybar-avatar" />
-    {/if}
   </a>
+
+  <!-- User -->
+  {#if $authState === 'authenticated' && $user}
+    <div class="keybar-user">
+      <img src={$user.avatar_url} alt={$user.login} class="keybar-avatar" />
+      <span class="keybar-username">{$user.name?.split(' ')[0] || $user.login}</span>
+    </div>
+  {/if}
 
   <!-- Shortcut rows -->
   <div class="keybar-shortcuts">
@@ -86,23 +93,15 @@
     backdrop-filter: blur(14px);
     -webkit-backdrop-filter: blur(14px);
     border: 1px solid color-mix(in oklch, var(--color-base-300, #374151) 30%, transparent);
-    opacity: 0.5;
-    transition: opacity 0.2s ease;
     overflow: hidden;
-  }
-
-  .keybar:hover {
-    opacity: 1;
   }
 
   /* Logo row */
   .keybar-logo {
     display: flex;
     align-items: center;
-    justify-content: space-between;
     gap: 0.5rem;
     padding: 0.65rem 0.85rem;
-    border-bottom: 1px solid color-mix(in oklch, var(--color-base-300, #374151) 25%, transparent);
     text-decoration: none;
     transition: background 0.12s ease;
     cursor: pointer;
@@ -115,7 +114,7 @@
   .keybar-logo-text {
     font-family: 'Unbounded', sans-serif;
     font-weight: 900;
-    font-size: 1.45rem;
+    font-size: 1.75rem;
     letter-spacing: -0.02em;
     background: linear-gradient(to right, var(--color-primary), var(--color-accent));
     -webkit-background-clip: text;
@@ -124,12 +123,28 @@
     line-height: 1;
   }
 
+  /* User row */
+  .keybar-user {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.4rem 0.85rem 0.5rem;
+    border-bottom: 1px solid color-mix(in oklch, var(--color-base-300, #374151) 25%, transparent);
+  }
+
   .keybar-avatar {
-    width: 1.5rem;
-    height: 1.5rem;
+    width: 2.25rem;
+    height: 2.25rem;
     border-radius: 50%;
     object-fit: cover;
     flex-shrink: 0;
+    border: 2px solid var(--color-accent, #f59e0b);
+  }
+
+  .keybar-username {
+    font-family: 'Nunito', sans-serif;
+    font-size: 1.05rem;
+    font-weight: 600;
     opacity: 0.7;
   }
 
@@ -137,7 +152,7 @@
   .keybar-shortcuts {
     display: flex;
     flex-direction: column;
-    padding: 0.35rem;
+    padding: 0.15rem 0.35rem;
     gap: 0.1rem;
   }
 
@@ -146,13 +161,13 @@
     align-items: center;
     justify-content: space-between;
     gap: 1rem;
-    padding: 0.45rem 0.55rem;
+    padding: 0.3rem 0.65rem;
     border-radius: 0.35rem;
     border: none;
     background: transparent;
     color: var(--color-base-content, #a6adbb);
     cursor: pointer;
-    font-size: 0.8rem;
+    font-size: 0.95rem;
     font-family: 'Nunito', sans-serif;
     white-space: nowrap;
     transition: background 0.1s ease;
@@ -172,8 +187,8 @@
 
   .keybar-kbd {
     font-family: 'Fira Code', monospace;
-    font-size: 0.65rem;
-    padding: 0.2em 0.4em;
+    font-size: 0.75rem;
+    padding: 0.25em 0.5em;
     border-radius: 0.25rem;
     background: color-mix(in oklch, var(--color-base-300, #374151) 60%, transparent);
     border: 1px solid color-mix(in oklch, var(--color-base-300, #374151) 40%, transparent);

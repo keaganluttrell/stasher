@@ -115,8 +115,8 @@
     // Block remaining custom shortcuts if inside editable element
     if (inEditable) return;
 
-    // Cmd+Shift+H: home
-    if (metaOrCtrl && e.shiftKey && (e.key === 'h' || e.key === 'H')) {
+    // Cmd+I: home
+    if (metaOrCtrl && e.key === 'i') {
       e.preventDefault();
       goto(base + '/');
       return;

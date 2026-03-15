@@ -9,8 +9,7 @@ import { getToken } from './auth.js';
 const BASE = 'https://api.github.com';
 
 const DEFAULT_PREFERENCES = {
-  theme: 'night',
-  sidebarGroups: {}
+  theme: 'night'
 };
 
 function headers() {
