@@ -1,9 +1,12 @@
 ---
-title: "Housekeeping and Maintenance Operations: Industry Research Report"
-description: "Comprehensive industry research on housekeeping and maintenance operations across hotels, vacation rentals, and resorts to inform the Amos Tasks domain."
-date: 2025-03-14
-tags: housekeeping, maintenance, hospitality, operations, research, tasks, vacation-rentals, resorts, competitive-landscape
+title: 'Housekeeping and Maintenance Operations: Industry Research Report'
+description: >-
+  Comprehensive industry research on housekeeping and maintenance operations
+  across hotels, vacation rentals, and resorts to inform the Amos Tasks domain.
+date: 2025-03-14T00:00:00.000Z
 group: research
+type: doc
+id: research/HOUSEKEEPING_MAINTENANCE_TRENDS
 ---
 
 # Housekeeping & Maintenance Operations: Industry Research Report

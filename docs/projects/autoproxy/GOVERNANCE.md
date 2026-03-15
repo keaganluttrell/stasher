@@ -1,9 +1,12 @@
 ---
-title: "AutoProxy: Automation Governance Framework"
-description: "Risk framework, kill switches, confidence thresholds, audit trail, compliance requirements, and phased rollout governance for AutoProxy."
-date: 2025-03-14
-tags: autoproxy, governance, risk, compliance, kill-switch, confidence-thresholds, audit, rollout
+title: 'AutoProxy: Automation Governance Framework'
+description: >-
+  Risk framework, kill switches, confidence thresholds, audit trail, compliance
+  requirements, and phased rollout governance for AutoProxy.
+date: 2025-03-14T00:00:00.000Z
 group: projects/autoproxy
+type: doc
+id: projects/autoproxy/GOVERNANCE
 ---
 
 # AutoProxy: Automation Governance Framework

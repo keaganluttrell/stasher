@@ -15,7 +15,7 @@ export async function loadIndex() {
   }
   docs = await res.json();
   fuse = new Fuse(docs, {
-    keys: ['title', 'description', 'tags', 'excerpt'],
+    keys: ['title', 'description', 'id', 'type', 'excerpt'],
     threshold: 0.35,
     includeScore: true
   });
@@ -44,20 +44,17 @@ export function getGroups() {
 }
 
 /**
- * Collect all unique tags from all docs, with counts.
- * Tags are stored as comma-separated strings in each doc's `tags` field.
- * @returns {Array<{tag: string, count: number}>} sorted by count descending, then alphabetically
+ * Return the raw index array.
  */
-export function getAllTags() {
-  const counts = {};
-  for (const doc of docs) {
-    if (!doc.tags) continue;
-    const tags = doc.tags.split(',').map(t => t.trim()).filter(Boolean);
-    for (const tag of tags) {
-      counts[tag] = (counts[tag] || 0) + 1;
-    }
-  }
-  return Object.entries(counts)
-    .map(([tag, count]) => ({ tag, count }))
-    .sort((a, b) => b.count - a.count || a.tag.localeCompare(b.tag));
+export function getIndex() {
+  return docs;
+}
+
+/**
+ * Look up a single index entry by its `id` field.
+ * @param {string} id
+ * @returns {object|undefined}
+ */
+export function lookupById(id) {
+  return docs.find(d => d.id === id);
 }

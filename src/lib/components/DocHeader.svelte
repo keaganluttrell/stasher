@@ -1,7 +1,6 @@
 <script>
   export let title = '';
   export let description = '';
-  export let tags = '';
   export let date = '';
   export let status = '';
   export let editing = false;
@@ -10,23 +9,6 @@
   export let onEdit = () => {};
   export let onSave = () => {};
   export let onCancel = () => {};
-
-  const TAG_COLORS = [
-    'badge-primary',
-    'badge-secondary',
-    'badge-accent',
-    'badge-info',
-    'badge-success',
-    'badge-warning',
-  ];
-
-  function tagColor(tag) {
-    let hash = 0;
-    for (let i = 0; i < tag.length; i++) {
-      hash = tag.charCodeAt(i) + ((hash << 5) - hash);
-    }
-    return TAG_COLORS[Math.abs(hash) % TAG_COLORS.length];
-  }
 
   function formatDate(dateStr) {
     if (!dateStr) return '';
@@ -37,8 +19,6 @@
       return dateStr;
     }
   }
-
-  $: tagList = tags ? tags.split(',').map((t) => t.trim()).filter(Boolean) : [];
 </script>
 
 <div class="border-b border-base-300/50 pb-5 mb-6">
@@ -48,15 +28,6 @@
   <!-- Description -->
   {#if description}
     <p class="text-base opacity-70 mt-2 leading-relaxed">{description}</p>
-  {/if}
-
-  <!-- Tags row -->
-  {#if tagList.length > 0}
-    <div class="flex gap-1.5 flex-wrap mt-3">
-      {#each tagList as tag}
-        <span class="badge badge-sm {tagColor(tag)}">{tag}</span>
-      {/each}
-    </div>
   {/if}
 
   <!-- Meta row: date, status, edit button -->

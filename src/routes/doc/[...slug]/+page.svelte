@@ -6,6 +6,7 @@
   import { config } from '$lib/config.js';
   import { getDoc } from '$lib/docs.js';
   import { getFile, putFile } from '$lib/github.js';
+  import { getIndex, lookupById } from '$lib/search.js';
   import { marked } from 'marked';
   import DocHeader from '$lib/components/DocHeader.svelte';
 
@@ -14,6 +15,30 @@
     const id = text.toLowerCase().replace(/[^\w]+/g, '-').replace(/(^-|-$)/g, '');
     return `<h${depth} id="${id}"><a href="#${id}" class="anchor-link" aria-hidden="true" onclick="event.preventDefault();navigator.clipboard.writeText(location.origin+location.pathname+'#${id}');this.dataset.copied='true';setTimeout(()=>this.dataset.copied='',1500)">#</a>${text}</h${depth}>`;
   };
+
+  // Wikilink extension: convert [[id]] to clickable links
+  const wikilinkExtension = {
+    extensions: [{
+      name: 'wikilink',
+      level: 'inline',
+      start(src) { return src.indexOf('[['); },
+      tokenizer(src) {
+        const match = src.match(/^\[\[([^\]]+)\]\]/);
+        if (match) {
+          return { type: 'wikilink', raw: match[0], id: match[1].trim() };
+        }
+      },
+      renderer(token) {
+        const entry = lookupById(token.id);
+        if (entry) {
+          return `<a href="${base}/doc/${entry.slug}" class="wikilink">${entry.title}</a>`;
+        }
+        return `<span class="wikilink-broken" title="Unresolved link: ${token.id}">${token.id}</span>`;
+      }
+    }]
+  };
+
+  marked.use(wikilinkExtension);
   marked.use({ renderer });
 
   // Slug is everything after /doc/ — supports nested paths
@@ -149,6 +174,12 @@
 
   $: renderedHtml = body ? marked(body).replace(/<table/g, '<div class="table-wrap"><table').replace(/<\/table>/g, '</table></div>') : '';
   $: isNew = slug === 'new';
+
+  // Backlinks: find the current doc's index entry and resolve its backlinks
+  $: currentEntry = loaded && slug ? getIndex().find(d => d.slug === slug) : null;
+  $: backlinks = (currentEntry?.backlinks || [])
+    .map(id => lookupById(id))
+    .filter(Boolean);
 </script>
 
 <svelte:head>
@@ -186,7 +217,6 @@
   <DocHeader
     title={frontmatter.title ?? slug}
     description={frontmatter.description ?? ''}
-    tags={frontmatter.tags ?? ''}
     date={frontmatter.date ?? ''}
     status={frontmatter.status ?? ''}
     {editing}
@@ -203,5 +233,34 @@
     <article class="prose max-w-none">
       {@html renderedHtml}
     </article>
+
+    {#if backlinks.length > 0}
+      <hr />
+      <details open>
+        <summary><strong>Backlinks</strong> <small>({backlinks.length})</small></summary>
+        <ul>
+          {#each backlinks as bl}
+            <li>
+              <a href="{base}/doc/{bl.slug}">{bl.title}</a>
+              {#if bl.description}
+                <br /><small>{bl.description}</small>
+              {/if}
+            </li>
+          {/each}
+        </ul>
+      </details>
+    {/if}
   {/if}
 {/if}
+
+<style>
+  :global(.wikilink) {
+    text-decoration-style: dotted;
+  }
+  :global(.wikilink-broken) {
+    color: var(--pico-del-color, #e53e3e);
+    text-decoration: line-through;
+    opacity: 0.6;
+    cursor: help;
+  }
+</style>

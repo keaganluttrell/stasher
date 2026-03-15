@@ -124,11 +124,6 @@
     return text.slice(0, maxLen).replace(/\s\S*$/, '') + '...';
   }
 
-  function parseTags(tagStr) {
-    if (!tagStr) return [];
-    return tagStr.split(',').map(t => t.trim()).filter(Boolean).slice(0, 3);
-  }
-
   // Card hover state tracking
   let hoveredSlug = null;
 
@@ -271,13 +266,8 @@
                 </p>
               {/if}
 
-              <!-- Footer: tags + date -->
-              <div class="flex items-center justify-between gap-2 mt-auto pt-2.5 border-t border-base-300/15">
-                <div class="flex flex-wrap gap-1 min-w-0 overflow-hidden">
-                  {#each parseTags(doc.tags) as tag}
-                    <span class="badge badge-xs badge-ghost opacity-40 font-normal text-[0.65rem]">{tag}</span>
-                  {/each}
-                </div>
+              <!-- Footer: date -->
+              <div class="flex items-center justify-end gap-2 mt-auto pt-2.5 border-t border-base-300/15">
                 {#if doc.date}
                   <span class="text-[0.65rem] opacity-30 whitespace-nowrap shrink-0">{formatDate(doc.date)}</span>
                 {/if}

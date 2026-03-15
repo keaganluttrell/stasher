@@ -1,9 +1,12 @@
 ---
 title: Soloscaler Product-Brand Fit Analysis
-description: Strategic analysis of Stacker and AutoProxy brand fit, hospitality tension resolution, four new product recommendations, and go-to-market sequence
-date: 2026-03-14
-tags: soloscaler, brand, stacker, autoproxy, product-strategy, gtm, portfolio
+description: >-
+  Strategic analysis of Stacker and AutoProxy brand fit, hospitality tension
+  resolution, four new product recommendations, and go-to-market sequence
+date: 2026-03-14T00:00:00.000Z
 group: projects/soloscaler
+type: doc
+id: projects/soloscaler/product-brand-fit
 ---
 
 ## Brand Fit Ratings

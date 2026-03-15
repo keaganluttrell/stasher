@@ -1,9 +1,13 @@
 ---
-title: "AutoProxy: Corporate/HQ Market Viability Assessment"
-description: "Market viability analysis for expanding AutoProxy from on-site operations to corporate/HQ use cases including executive overload and multi-property communication."
-date: 2025-03-14
-tags: autoproxy, market-research, corporate, multi-property, executive, competitive-analysis, hospitality
+title: 'AutoProxy: Corporate/HQ Market Viability Assessment'
+description: >-
+  Market viability analysis for expanding AutoProxy from on-site operations to
+  corporate/HQ use cases including executive overload and multi-property
+  communication.
+date: 2025-03-14T00:00:00.000Z
 group: projects/autoproxy
+type: doc
+id: projects/autoproxy/MARKET_RESEARCH_CORPORATE
 ---
 
 # AutoProxy Corporate/HQ Market Viability Assessment

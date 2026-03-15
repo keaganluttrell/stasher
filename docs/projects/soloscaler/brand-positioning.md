@@ -1,9 +1,12 @@
 ---
 title: Soloscaler Brand Positioning
-description: Positioning statement and strategic pillars for the Soloscaler brand targeting small businesses at $200K-$5M revenue
-date: 2026-03-14
-tags: soloscaler, brand, positioning, strategy, small-business
+description: >-
+  Positioning statement and strategic pillars for the Soloscaler brand targeting
+  small businesses at $200K-$5M revenue
+date: 2026-03-14T00:00:00.000Z
 group: projects/soloscaler
+type: doc
+id: projects/soloscaler/brand-positioning
 ---
 
 ## The Position

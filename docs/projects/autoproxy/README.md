@@ -1,9 +1,12 @@
 ---
-title: "AutoProxy: Product Overview"
-description: "Overview of the AutoProxy AI-powered message proxy layer for hospitality operations, including document index, key decisions, and build order."
-date: 2025-03-14
-tags: autoproxy, overview, ai, messaging, hospitality, product
+title: 'AutoProxy: Product Overview'
+description: >-
+  Overview of the AutoProxy AI-powered message proxy layer for hospitality
+  operations, including document index, key decisions, and build order.
+date: 2025-03-14T00:00:00.000Z
 group: projects/autoproxy
+type: doc
+id: projects/autoproxy/README
 ---
 
 # AutoProxy — Product Research

@@ -1,8 +1,12 @@
 ---
-title:
-description:
+title: ""
+description: ""
 date:
-tags:
 group:
+type: doc
+id: ""
+links: []
+source: ""
+created_by: human
 ---
 

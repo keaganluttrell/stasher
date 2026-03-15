@@ -1,9 +1,12 @@
 ---
-title: "AutoProxy: Technical Specification"
-description: "On-site system architecture, data model, message processing flow, OTP process design, and Ash framework integration for AutoProxy."
-date: 2025-03-14
-tags: autoproxy, technical-spec, architecture, ash, elixir, otp, data-model
+title: 'AutoProxy: Technical Specification'
+description: >-
+  On-site system architecture, data model, message processing flow, OTP process
+  design, and Ash framework integration for AutoProxy.
+date: 2025-03-14T00:00:00.000Z
 group: projects/autoproxy
+type: doc
+id: projects/autoproxy/TECHNICAL_SPEC
 ---
 
 # AutoProxy Technical Specification

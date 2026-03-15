@@ -1,9 +1,12 @@
 ---
 title: Soloscaler Competitive Positioning
-description: Head-to-head positioning against freelancers, agencies, SaaS tools, consultants, and business coaches with objection-handling scripts
-date: 2026-03-14
-tags: soloscaler, brand, competitive, positioning, sales
+description: >-
+  Head-to-head positioning against freelancers, agencies, SaaS tools,
+  consultants, and business coaches with objection-handling scripts
+date: 2026-03-14T00:00:00.000Z
 group: projects/soloscaler
+type: doc
+id: projects/soloscaler/competitive-positioning
 ---
 
 Soloscaler doesn't fit neatly into an existing category. The brand sits at an intersection nobody else occupies: high strategic value AND high execution capability, at small-business-friendly economics.

@@ -1,9 +1,12 @@
 ---
 title: Soloscaler Brand Identity Framework
-description: Core values, brand personality, voice guidelines, messaging pillars, and tagline options for the Soloscaler brand
-date: 2026-03-14
-tags: soloscaler, brand, identity, voice, values, messaging
+description: >-
+  Core values, brand personality, voice guidelines, messaging pillars, and
+  tagline options for the Soloscaler brand
+date: 2026-03-14T00:00:00.000Z
 group: projects/soloscaler
+type: doc
+id: projects/soloscaler/brand-identity
 ---
 
 ## Core Values

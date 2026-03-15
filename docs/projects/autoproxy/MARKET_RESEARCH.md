@@ -1,9 +1,12 @@
 ---
-title: "AutoProxy: Market Research"
-description: "On-site competitive landscape analysis, shoulder-tapping problem quantification, and differentiation strategy for AutoProxy."
-date: 2025-03-14
-tags: autoproxy, market-research, competitive-analysis, hospitality, ai, messaging, differentiation
+title: 'AutoProxy: Market Research'
+description: >-
+  On-site competitive landscape analysis, shoulder-tapping problem
+  quantification, and differentiation strategy for AutoProxy.
+date: 2025-03-14T00:00:00.000Z
 group: projects/autoproxy
+type: doc
+id: projects/autoproxy/MARKET_RESEARCH
 ---
 
 # AutoProxy: Market Research

@@ -38,21 +38,36 @@ The search index must be rebuilt after adding/changing docs. CI does this automa
 
 ## Frontmatter Schema
 
-All docs in `docs/` use this frontmatter:
+All docs use this frontmatter:
 
 ```yaml
 ---
 title: My Report Title
 description: One-line summary
 date: 2025-03-14
-tags: research, efh, pms
 group: research          # drives sidebar grouping
+type: doc                # doc | note | source | map (default: doc)
+id: "research/my-report" # unique ID for linking (default: slug)
+links: []                # outbound [[wikilink]] IDs
+source: ""               # slug of source doc this was extracted from
+created_by: agent        # agent | human
 ---
 ```
 
+No `tags` field — use maps and links instead.
+
+## Zettelkasten Conventions
+
+- **note** — one atomic idea per file, in `docs/zk/`. Named `YYYYMMDD-short-slug.md`.
+- **source** — summary of external content consumed. Links out to extracted notes.
+- **map** — curated entry point into a topic (Map of Content). Prefixed `_map-`.
+- **doc** — existing long-form project docs. Default type.
+- **Linking** — use `[[id]]` wikilinks in body text. Backlinks computed at build time in `index.json`.
+- Templates in `docs/_templates/` (note.md, source.md, map.md).
+
 ## Agent Write Path
 
-Agents commit `.md` files to `docs/` via the GitHub API or CLI. The GitHub Actions workflow (`deploy.yml`) re-indexes and redeploys on every push to `main`.
+Agents commit `.md` files to `docs/` (project docs) or `docs/zk/` (zettels) via the GitHub API or CLI. The GitHub Actions workflow (`deploy.yml`) re-indexes and redeploys on every push to `main`.
 
 ## Deployment
 

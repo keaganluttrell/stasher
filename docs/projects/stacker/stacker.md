@@ -1,9 +1,13 @@
 ---
-title: "Amos (Stacker): Project README"
-description: "Overview of the Amos hospitality PMS built with Ash Framework on Elixir/Phoenix, including setup instructions, domain architecture, and project structure."
-date: 2025-03-14
-tags: amos, stacker, pms, hospitality, elixir, phoenix, ash-framework, readme
+title: 'Amos (Stacker): Project README'
+description: >-
+  Overview of the Amos hospitality PMS built with Ash Framework on
+  Elixir/Phoenix, including setup instructions, domain architecture, and project
+  structure.
+date: 2025-03-14T00:00:00.000Z
 group: projects/stacker
+type: doc
+id: projects/stacker/stacker
 ---
 
 # Amos

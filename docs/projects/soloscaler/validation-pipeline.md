@@ -1,9 +1,12 @@
 ---
 title: Soloscaler Product Validation Pipeline
-description: Four-wave validation pipeline with kill gates, agent mappings, and execution playbook for validating any Soloscaler product idea
-date: 2026-03-14
-tags: soloscaler, validation, pipeline, process, agents, kill-criteria, gtm
+description: >-
+  Four-wave validation pipeline with kill gates, agent mappings, and execution
+  playbook for validating any Soloscaler product idea
+date: 2026-03-14T00:00:00.000Z
 group: projects/soloscaler
+type: doc
+id: projects/soloscaler/validation-pipeline
 ---
 
 ## Pipeline Philosophy

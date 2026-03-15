@@ -1,9 +1,12 @@
 ---
 title: Soloscaler Brand Story
-description: Five-act narrative arc for the Soloscaler brand with elevator, networking, and pitch versions
-date: 2026-03-14
-tags: soloscaler, brand, story, narrative, origin
+description: >-
+  Five-act narrative arc for the Soloscaler brand with elevator, networking, and
+  pitch versions
+date: 2026-03-14T00:00:00.000Z
 group: projects/soloscaler
+type: doc
+id: projects/soloscaler/brand-story
 ---
 
 ## The Narrative Arc

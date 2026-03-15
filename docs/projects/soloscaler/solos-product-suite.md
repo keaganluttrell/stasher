@@ -1,9 +1,12 @@
 ---
 title: SolOS Product Suite
-description: Overview of the five core SolOS tools — Stasher, Staffer, Stacker, Static, and AutoProxy
-date: 2026-03-14
-tags: soloscaler, solos, product-suite, stasher, staffer, stacker, static, autoproxy
+description: >-
+  Overview of the five core SolOS tools — Stasher, Staffer, Stacker, Static, and
+  AutoProxy
+date: 2026-03-14T00:00:00.000Z
 group: projects/soloscaler
+type: doc
+id: projects/soloscaler/solos-product-suite
 ---
 
 ## Overview

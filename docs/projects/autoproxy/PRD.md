@@ -1,9 +1,12 @@
 ---
-title: "AutoProxy: Product Requirements Document"
-description: "Product requirements for AutoProxy v2.0 covering 10 personas, 22 user stories, RICE-scored prioritization, and phased rollout plan."
-date: 2025-03-14
-tags: autoproxy, prd, product-requirements, user-stories, personas, prioritization, roadmap
+title: 'AutoProxy: Product Requirements Document'
+description: >-
+  Product requirements for AutoProxy v2.0 covering 10 personas, 22 user stories,
+  RICE-scored prioritization, and phased rollout plan.
+date: 2025-03-14T00:00:00.000Z
 group: projects/autoproxy
+type: doc
+id: projects/autoproxy/PRD
 ---
 
 # AutoProxy: AI-Powered Message Proxy Layer

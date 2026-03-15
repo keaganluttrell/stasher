@@ -1,9 +1,13 @@
 ---
-title: "AutoProxy: AI Message Intelligence Architecture"
-description: "Buildable specification for AutoProxy's AI/ML layer covering model selection, prompt design, RAG with pgvector, classification pipeline, cost modeling, and Elixir process topology."
-date: 2025-03-14
-tags: autoproxy, ai, llm, architecture, elixir, pgvector, rag, classification, cost-modeling
+title: 'AutoProxy: AI Message Intelligence Architecture'
+description: >-
+  Buildable specification for AutoProxy's AI/ML layer covering model selection,
+  prompt design, RAG with pgvector, classification pipeline, cost modeling, and
+  Elixir process topology.
+date: 2025-03-14T00:00:00.000Z
 group: projects/autoproxy
+type: doc
+id: projects/autoproxy/AI_ARCHITECTURE
 ---
 
 # AutoProxy: AI Message Intelligence Architecture

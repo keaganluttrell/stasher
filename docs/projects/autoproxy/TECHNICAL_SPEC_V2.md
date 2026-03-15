@@ -1,9 +1,13 @@
 ---
-title: "AutoProxy: Technical Specification v2 — On-Site + Corporate"
-description: "Extended technical specification adding corporate/HQ capabilities including cross-property intelligence, executive digests, and portfolio-scope processing."
-date: 2025-03-14
-tags: autoproxy, technical-spec, architecture, corporate, cross-property, digest, portfolio
+title: 'AutoProxy: Technical Specification v2 — On-Site + Corporate'
+description: >-
+  Extended technical specification adding corporate/HQ capabilities including
+  cross-property intelligence, executive digests, and portfolio-scope
+  processing.
+date: 2025-03-14T00:00:00.000Z
 group: projects/autoproxy
+type: doc
+id: projects/autoproxy/TECHNICAL_SPEC_V2
 ---
 
 # AutoProxy Technical Specification v2: On-Site + Corporate

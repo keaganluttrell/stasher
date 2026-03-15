@@ -1,9 +1,12 @@
 ---
-title: "AutoProxy: Implementation Roadmap"
-description: "Seven-phase implementation roadmap for AutoProxy covering on-site foundation and corporate extension, with resource estimates and sequencing."
-date: 2025-03-14
-tags: autoproxy, roadmap, implementation, phases, planning, on-site, corporate
+title: 'AutoProxy: Implementation Roadmap'
+description: >-
+  Seven-phase implementation roadmap for AutoProxy covering on-site foundation
+  and corporate extension, with resource estimates and sequencing.
+date: 2025-03-14T00:00:00.000Z
 group: projects/autoproxy
+type: doc
+id: projects/autoproxy/ROADMAP
 ---
 
 # AutoProxy: Implementation Roadmap

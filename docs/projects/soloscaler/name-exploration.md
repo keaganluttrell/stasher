@@ -1,9 +1,12 @@
 ---
 title: Soloscaler Name Exploration
-description: Evaluation of "Soloscaler" brand name against 10+ alternatives with scoring matrix and recommendation to keep the name
-date: 2026-03-14
-tags: soloscaler, brand, naming, strategy
+description: >-
+  Evaluation of "Soloscaler" brand name against 10+ alternatives with scoring
+  matrix and recommendation to keep the name
+date: 2026-03-14T00:00:00.000Z
 group: projects/soloscaler
+type: doc
+id: projects/soloscaler/name-exploration
 ---
 
 ## Verdict: Keep "Soloscaler"

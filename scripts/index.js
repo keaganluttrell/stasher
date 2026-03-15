@@ -37,13 +37,26 @@ function walk(dir, base = '') {
       // Slug: strip .md, normalise separators
       const slug = relativePath.replace(/\\/g, '/').replace(/\.md$/, '');
 
+      // Parse [[wikilinks]] from body content
+      const wikilinkMatches = content.match(/\[\[([^\]]+)\]\]/g) ?? [];
+      const bodyLinks = wikilinkMatches.map(m => m.slice(2, -2));
+
+      // Merge frontmatter links with body wikilinks, deduplicated
+      const fmLinks = frontmatter.links ?? [];
+      const links = [...new Set([...fmLinks, ...bodyLinks])];
+
       results.push({
         slug,
         title: frontmatter.title ?? slug.split('/').pop(),
         description: frontmatter.description ?? '',
-        tags: frontmatter.tags ?? [],
         group: frontmatter.group ?? slug.split('/')[0] ?? 'uncategorised',
         date: frontmatter.date ?? null,
+        type: frontmatter.type ?? 'doc',
+        id: frontmatter.id ?? slug,
+        links,
+        backlinks: [], // computed after full index is built
+        source: frontmatter.source ?? null,
+        created_by: frontmatter.created_by ?? null,
         // Trim content for the index — first 500 chars is enough for search
         excerpt: content.replace(/#+\s/g, '').trim().slice(0, 500),
         // Keep full raw content for individual doc files (not included in index.json)
@@ -56,6 +69,13 @@ function walk(dir, base = '') {
 }
 
 const index = walk(DOCS_DIR);
+
+// Compute backlinks: for each entry, find all others that link to it
+for (const entry of index) {
+  entry.backlinks = index
+    .filter(other => other !== entry && other.links.includes(entry.id))
+    .map(other => other.id);
+}
 
 // Write individual doc JSON files to static/docs/<slug>.json
 for (const doc of index) {
