@@ -7,14 +7,18 @@
   let allDocs = [];
   let ready = false;
 
-  // Computed stats
-  let totalDocs = 0;
+  // Stats
+  let totalNotes = 0;
   let mapCount = 0;
   let totalLinks = 0;
-  let recentActivity = 0;
+  let orphanCount = 0;
 
   // Derived lists
-  let maps = [];
+  let gravityNotes = [];
+  let maxConnections = 1;
+  let densityData = [];
+  let maxNoteCount = 1;
+  let orphans = [];
   let recentDocs = [];
   let groupedRecent = [];
 
@@ -74,23 +78,36 @@
     await loadIndex();
     allDocs = getIndex();
 
-    totalDocs = allDocs.length;
-    maps = allDocs.filter(d => d.type === 'map');
+    // Stats
+    totalNotes = allDocs.length;
+    const maps = allDocs.filter(d => d.type === 'map');
     mapCount = maps.length;
     totalLinks = allDocs.reduce((sum, d) => sum + (d.links ? d.links.length : 0), 0);
 
-    // Count docs with dates in last 7 days
-    const now = new Date();
-    const weekAgo = new Date(now);
-    weekAgo.setDate(weekAgo.getDate() - 7);
-    recentActivity = allDocs.filter(d => {
-      if (!d.date) return false;
-      const str = String(d.date);
-      const docDate = str.includes('T') ? new Date(str) : new Date(str + 'T00:00:00');
-      return !isNaN(docDate.getTime()) && docDate >= weekAgo;
-    }).length;
+    // Gravity: top 8 notes by connection count
+    const notes = allDocs.filter(d => d.type === 'note');
+    const withCounts = notes.map(d => ({
+      ...d,
+      connections: (d.links?.length || 0) + (d.backlinks?.length || 0),
+      backlinkCount: d.backlinks?.length || 0,
+      linkCount: d.links?.length || 0
+    }));
+    gravityNotes = withCounts.sort((a, b) => b.connections - a.connections).slice(0, 8);
+    maxConnections = gravityNotes[0]?.connections || 1;
 
-    // Recent: non-maps, sorted by date desc then title asc
+    // Density: per map
+    densityData = maps.map(m => ({
+      ...m,
+      noteCount: m.links?.length || 0,
+      displayName: m.title.replace(/^Map:\s*/i, '').split(/\s*[\u2014\-\u2013]\s*/)[0].replace(/\s+(Operations|Brand|PMS|Intelligence).*$/i, '').trim()
+    }));
+    maxNoteCount = Math.max(...densityData.map(d => d.noteCount), 1);
+
+    // Orphans: notes with 0 backlinks (exclude maps)
+    orphans = allDocs.filter(d => d.type !== 'map' && (!d.backlinks || d.backlinks.length === 0));
+    orphanCount = orphans.length;
+
+    // Recent: top 5 non-maps
     recentDocs = allDocs
       .filter(d => d.type !== 'map')
       .sort((a, b) => {
@@ -98,7 +115,7 @@
         if (dateCompare !== 0) return dateCompare;
         return (a.title || '').localeCompare(b.title || '');
       })
-      .slice(0, 20);
+      .slice(0, 5);
 
     groupedRecent = groupDocs(recentDocs);
 
@@ -125,10 +142,10 @@
     <p class="mc-loading-text">Loading knowledge base...</p>
   </div>
 {:else}
-  <!-- Stats strip -->
+  <!-- 1. Stats Strip -->
   <div class="mc-stats-strip">
     <div class="mc-stat">
-      <span class="mc-stat-number">{totalDocs}</span>
+      <span class="mc-stat-number">{totalNotes}</span>
       <span class="mc-stat-label">notes</span>
     </div>
     <div class="mc-stat">
@@ -140,25 +157,39 @@
       <span class="mc-stat-label">links</span>
     </div>
     <div class="mc-stat">
-      <span class="mc-stat-number">{recentActivity}</span>
-      <span class="mc-stat-label">this week</span>
+      <span class="mc-stat-number">{orphanCount}</span>
+      <span class="mc-stat-label">orphans</span>
     </div>
   </div>
 
-  <!-- Maps section -->
-  <section class="mc-section mc-section-maps">
-    <h2 class="mc-heading">Maps</h2>
-    <div class="mc-maps-grid">
-      {#each maps as map}
-        <a href="{base}/doc/{map.slug}" class="mc-map-card">
-          <div class="mc-map-body">
-            <h3 class="mc-map-title">{map.title}</h3>
-            {#if map.description}
-              <p class="mc-map-desc">{map.description}</p>
-            {/if}
-            <div class="mc-map-links">
-              <span class="mc-map-links-number">{map.links ? map.links.length : 0}</span>
-              <span class="mc-map-links-label">linked</span>
+  <!-- 2. Gravity Notes -->
+  <section class="mc-section">
+    <h2 class="mc-heading">Gravity <span class="mc-heading-sub">(most referenced)</span></h2>
+    <div class="mc-gravity-list">
+      {#each gravityNotes as note}
+        <a href="{base}/doc/{note.slug}" class="mc-gravity-row">
+          <div class="gravity-bg" style="width: {(note.connections / maxConnections) * 100}%"></div>
+          <span class="mc-gravity-rank">#{gravityNotes.indexOf(note) + 1}</span>
+          <span class="mc-gravity-title">{note.title}</span>
+          <span class="mc-gravity-counts">
+            <span class="mc-gravity-in">{note.backlinkCount} in</span>
+            <span class="mc-gravity-out">{note.linkCount} out</span>
+          </span>
+        </a>
+      {/each}
+    </div>
+  </section>
+
+  <!-- 3. Connection Density -->
+  <section class="mc-section">
+    <h2 class="mc-heading">Density <span class="mc-heading-sub">(by map)</span></h2>
+    <div class="mc-density-row">
+      {#each densityData as col}
+        <a href="{base}/doc/{col.slug}" class="mc-density-col">
+          <span class="mc-density-label">{col.displayName}</span>
+          <div class="mc-density-bar-container">
+            <div class="mc-density-bar-fill" style="height: {(col.noteCount / maxNoteCount) * 100}%">
+              <span class="mc-density-count">{col.noteCount}</span>
             </div>
           </div>
         </a>
@@ -166,7 +197,22 @@
     </div>
   </section>
 
-  <!-- Recent section -->
+  <!-- 4. Orphan Shelf -->
+  {#if orphans.length > 0}
+    <section class="mc-section">
+      <h2 class="mc-heading">Orphans <span class="mc-heading-sub">(unlinked)</span> <span class="mc-orphan-badge">{orphans.length}</span></h2>
+      <div class="mc-orphan-shelf">
+        {#each orphans as orphan}
+          <a href="{base}/doc/{orphan.slug}" class="mc-orphan-card">
+            <span class="mc-orphan-title">{orphan.title}</span>
+            <span class="mc-orphan-links">0 backlinks</span>
+          </a>
+        {/each}
+      </div>
+    </section>
+  {/if}
+
+  <!-- 5. Recent -->
   <section class="mc-section">
     <h2 class="mc-heading">Recent</h2>
     <div class="mc-recent-list">
@@ -213,34 +259,38 @@
     font-family: 'Nunito', sans-serif;
   }
 
-  /* Stats strip — dashboard style */
+  /* Stats strip */
   .mc-stats-strip {
     display: flex;
-    gap: 2rem;
-    margin: 0 0 2rem 0;
-    padding-bottom: 1.5rem;
-    border-bottom: 1px solid color-mix(in oklch, var(--color-base-300, #374151) 25%, transparent);
+    justify-content: space-between;
+    gap: 0.75rem;
+    margin: 0 0 2.5rem 0;
   }
 
   .mc-stat {
     display: flex;
     flex-direction: column;
-    align-items: flex-start;
-    gap: 0.1rem;
+    align-items: center;
+    gap: 0.15rem;
+    flex: 1;
+    padding: 0.75rem 1rem;
+    background: var(--color-base-200, #2a303c);
+    border: 1px solid color-mix(in oklch, var(--color-base-300, #374151) 40%, transparent);
+    border-radius: 0.4rem;
   }
 
   .mc-stat-number {
     font-family: 'Fira Code', monospace;
-    font-size: 1.5rem;
+    font-size: 1.4rem;
     font-weight: 700;
-    opacity: 0.7;
-    line-height: 1.2;
+    opacity: 0.8;
+    line-height: 1;
     color: var(--color-base-content, #a6adbb);
   }
 
   .mc-stat-label {
     font-family: 'Nunito', sans-serif;
-    font-size: 0.7rem;
+    font-size: 0.75rem;
     font-weight: 600;
     text-transform: uppercase;
     letter-spacing: 0.04em;
@@ -259,93 +309,233 @@
     margin: 0 0 0.75rem 0;
   }
 
+  .mc-heading-sub {
+    font-weight: 400;
+    opacity: 0.65;
+    text-transform: none;
+    letter-spacing: normal;
+  }
+
   .mc-section {
     margin-bottom: 2.5rem;
   }
 
-  .mc-section-maps {
-    margin-bottom: 3.5rem;
-  }
-
-  /* Maps grid */
-  .mc-maps-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 0.75rem;
-  }
-
-  .mc-map-card {
-    display: block;
-    text-decoration: none;
-    color: inherit;
-    background: var(--color-base-200, #2a303c);
-    border: 1px solid color-mix(in oklch, var(--color-base-300, #374151) 65%, transparent);
-    border-left: 3px solid #d4883a;
-    border-radius: 0.5rem;
-    padding: 1.25rem 1.1rem;
-    transition: background 0.12s ease, border-color 0.12s ease, transform 0.12s ease, box-shadow 0.12s ease;
-    cursor: pointer;
-    box-shadow: 0 1px 4px 0 rgba(0, 0, 0, 0.12);
-  }
-
-  .mc-map-card:hover {
-    background: color-mix(in oklch, var(--color-base-200, #2a303c) 70%, var(--color-base-300, #374151));
-    border-color: color-mix(in oklch, #d4883a 40%, transparent);
-    border-left-color: #d4883a;
-    transform: translateY(-1px);
-    box-shadow: 0 4px 12px 0 rgba(0, 0, 0, 0.2);
-  }
-
-  .mc-map-body {
+  /* Gravity Notes */
+  .mc-gravity-list {
     display: flex;
     flex-direction: column;
-    gap: 0.4rem;
   }
 
-  .mc-map-title {
-    font-family: 'Plus Jakarta Sans', sans-serif;
-    font-size: 0.9rem;
-    font-weight: 700;
-    margin: 0;
-    line-height: 1.35;
-    color: var(--color-base-content, #a6adbb);
-    word-wrap: break-word;
-  }
-
-  .mc-map-desc {
-    font-family: 'Nunito', sans-serif;
-    font-size: 0.78rem;
-    opacity: 0.6;
-    margin: 0;
-    line-height: 1.4;
-    display: -webkit-box;
-    -webkit-line-clamp: 2;
-    -webkit-box-orient: vertical;
+  .mc-gravity-row {
+    position: relative;
     overflow: hidden;
-  }
-
-  .mc-map-links {
     display: flex;
-    align-items: baseline;
-    gap: 0.3rem;
-    margin-top: 0.25rem;
+    align-items: center;
+    gap: 0.6rem;
+    padding: 0.55rem 0.5rem;
+    text-decoration: none;
+    color: inherit;
+    border-radius: 0.3rem;
+    transition: background 0.08s ease;
+    cursor: pointer;
   }
 
-  .mc-map-links-number {
+  .mc-gravity-row:hover {
+    background: color-mix(in oklch, var(--color-base-content, #a6adbb) 6%, transparent);
+  }
+
+  .gravity-bg {
+    position: absolute;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    background: linear-gradient(to right, color-mix(in oklch, #d4883a 12%, transparent), color-mix(in oklch, #d4883a 4%, transparent));
+    border-radius: 0.3rem;
+    pointer-events: none;
+  }
+
+  .mc-gravity-rank {
     font-family: 'Fira Code', monospace;
-    font-size: 1rem;
-    font-weight: 700;
-    opacity: 0.5;
+    font-size: 0.65rem;
+    opacity: 0.3;
+    flex-shrink: 0;
+    width: 1.5rem;
+    text-align: right;
+  }
+
+  .mc-gravity-title {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: 0.85rem;
+    font-weight: 500;
+    color: var(--color-base-content, #a6adbb);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    min-width: 0;
+    flex: 1;
+  }
+
+  .mc-gravity-counts {
+    display: flex;
+    gap: 0.6rem;
+    flex-shrink: 0;
+    margin-left: 0.5rem;
+  }
+
+  .mc-gravity-in {
+    font-family: 'Fira Code', monospace;
+    font-size: 0.7rem;
+    color: #d4883a;
+    opacity: 0.7;
+    white-space: nowrap;
+  }
+
+  .mc-gravity-out {
+    font-family: 'Fira Code', monospace;
+    font-size: 0.7rem;
+    opacity: 0.35;
+    white-space: nowrap;
     color: var(--color-base-content, #a6adbb);
   }
 
-  .mc-map-links-label {
-    font-family: 'Nunito', sans-serif;
+  /* Connection Density */
+  .mc-density-row {
+    display: flex;
+    justify-content: space-evenly;
+    gap: 0.5rem;
+  }
+
+  .mc-density-col {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.35rem;
+    text-decoration: none;
+    color: inherit;
+    cursor: pointer;
+    flex: 1;
+    min-width: 0;
+    transition: opacity 0.1s ease;
+  }
+
+  .mc-density-col:hover {
+    opacity: 0.8;
+  }
+
+  .mc-density-label {
+    font-family: 'Plus Jakarta Sans', sans-serif;
     font-size: 0.65rem;
-    opacity: 0.4;
+    font-weight: 600;
     text-transform: uppercase;
     letter-spacing: 0.03em;
     color: var(--color-base-content, #a6adbb);
+    opacity: 0.6;
+    text-align: center;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 100%;
+  }
+
+  .mc-density-bar-container {
+    width: 100%;
+    max-width: 5rem;
+    height: 5rem;
+    background: color-mix(in oklch, var(--color-base-300, #374151) 20%, transparent);
+    border: 1px solid color-mix(in oklch, var(--color-base-300, #374151) 25%, transparent);
+    border-radius: 0.35rem;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .mc-density-bar-fill {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: linear-gradient(to top, color-mix(in oklch, #d4883a 15%, transparent), color-mix(in oklch, #d4883a 35%, transparent));
+    border-radius: 0 0 0.3rem 0.3rem;
+    transition: height 0.3s ease;
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    padding-top: 0.3rem;
+  }
+
+  .mc-density-count {
+    font-family: 'Fira Code', monospace;
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: #d4883a;
+    opacity: 0.9;
+  }
+
+  /* Orphan Shelf */
+  .mc-orphan-badge {
+    font-family: 'Fira Code', monospace;
+    font-size: 0.6rem;
+    font-weight: 600;
+    background: color-mix(in oklch, var(--color-base-300, #374151) 40%, transparent);
+    padding: 0.1em 0.45em;
+    border-radius: 3px;
+    opacity: 0.7;
+    text-transform: none;
+    letter-spacing: normal;
+  }
+
+  .mc-orphan-shelf {
+    display: flex;
+    gap: 0.65rem;
+    overflow-x: auto;
+    padding-bottom: 0.5rem;
+    scrollbar-width: thin;
+  }
+
+  .mc-orphan-card {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    min-width: 11rem;
+    max-width: 11rem;
+    min-height: 6.5rem;
+    padding: 0.75rem 0.7rem;
+    border-left: 2px dashed color-mix(in oklch, var(--color-base-content, #a6adbb) 30%, transparent);
+    border: 1px solid color-mix(in oklch, var(--color-base-300, #374151) 40%, transparent);
+    border-left: 2px dashed color-mix(in oklch, var(--color-base-content, #a6adbb) 30%, transparent);
+    background: color-mix(in oklch, var(--color-base-200, #2a303c) 90%, var(--color-base-300, #374151));
+    border-radius: 0 0.35rem 0.35rem 0;
+    text-decoration: none;
+    color: inherit;
+    cursor: pointer;
+    transition: border-color 0.12s ease, box-shadow 0.12s ease, transform 0.12s ease;
+    flex-shrink: 0;
+  }
+
+  .mc-orphan-card:hover {
+    border-left: 2px solid #d4883a;
+    box-shadow: 0 4px 12px 0 rgba(0, 0, 0, 0.2);
+    transform: translateY(-2px);
+  }
+
+  .mc-orphan-title {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: 0.78rem;
+    font-weight: 600;
+    color: var(--color-base-content, #a6adbb);
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    line-height: 1.4;
+  }
+
+  .mc-orphan-links {
+    font-family: 'Fira Code', monospace;
+    font-size: 0.6rem;
+    opacity: 0.45;
+    color: var(--color-base-content, #a6adbb);
+    margin-top: auto;
+    padding-top: 0.4rem;
   }
 
   /* Date group headers */
@@ -456,24 +646,24 @@
 
   /* Responsive */
   @media (max-width: 639px) {
-    .mc-maps-grid {
-      grid-template-columns: 1fr;
-    }
-
-    .mc-map-card {
-      padding: 1rem 0.9rem;
-    }
-
-    .mc-map-title {
-      font-size: 0.85rem;
-    }
-
     .mc-stats-strip {
-      gap: 1.25rem;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.5rem;
     }
 
     .mc-stat-number {
-      font-size: 1.25rem;
+      font-size: 1.15rem;
+    }
+
+    .mc-density-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+    }
+
+    .mc-density-col {
+      flex: unset;
     }
   }
 </style>
