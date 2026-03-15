@@ -284,6 +284,7 @@
   /* Filter pills */
   .cmd-filters {
     display: flex;
+    justify-content: space-evenly;
     gap: 0.35rem;
     padding: 0.75rem 0.75rem 0;
     flex-wrap: wrap;
@@ -463,25 +464,27 @@
   /* Footer */
   .cmd-footer {
     display: flex;
-    gap: 1rem;
-    padding: 0.5rem 0.75rem;
+    justify-content: space-evenly;
+    gap: 1.25rem;
+    padding: 0.65rem 0.75rem;
     border-top: 1px solid color-mix(in oklch, var(--color-base-300, #374151) 50%, transparent);
-    font-size: 0.6rem;
-    font-family: 'Nunito', sans-serif;
+    font-size: 0.78rem;
+    font-weight: 600;
+    font-family: 'Plus Jakarta Sans', sans-serif;
     color: var(--color-base-content, #a6adbb);
-    opacity: 0.35;
+    opacity: 0.45;
   }
 
   .cmd-footer span {
     display: flex;
     align-items: center;
-    gap: 0.25rem;
+    gap: 0.3rem;
   }
 
   .cmd-kbd-sm {
-    font-size: 0.55rem;
+    font-size: 0.72rem;
     font-family: 'Fira Code', monospace;
-    padding: 0.05em 0.3em;
+    padding: 0.12em 0.4em;
     border-radius: 0.2rem;
     background: var(--color-base-200, #2a303c);
     border: 1px solid color-mix(in oklch, var(--color-base-300, #374151) 50%, transparent);
