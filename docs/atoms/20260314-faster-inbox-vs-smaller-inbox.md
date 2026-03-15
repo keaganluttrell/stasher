@@ -1,0 +1,26 @@
+---
+title: Faster inbox versus smaller inbox is the core positioning distinction
+description: >-
+  Copilot and Slack AI help process messages faster after receiving them;
+  AutoProxy prevents receiving messages you do not need
+date: 2026-03-14T00:00:00.000Z
+group: atoms
+type: note
+id: 20260314-faster-inbox-vs-smaller-inbox
+links:
+  - 20260314-ai-adoption-paradox
+  - 20260314-competitive-gap-no-ai-proxy-internal-hospitality
+  - 20260314-shoulder-tapping-tax
+source: projects/autoproxy/MARKET_RESEARCH
+created_by: agent
+---
+
+The sharpest way to explain AutoProxy's competitive position against horizontal AI tools is one question: do you want a faster inbox or a smaller inbox?
+
+Microsoft Copilot and Slack AI are faster-inbox tools. They summarize chats after the fact, generate recaps of threads you already received, rewrite messages you are composing, and surface insights from conversations that already happened. They are reading assistants -- they make you faster at processing the messages that already arrived.
+
+AutoProxy is a smaller-inbox tool. It intercepts messages before they reach you and makes one of four decisions: answer the question itself (from system data), route it to the person who should actually handle it, absorb it into a batch or digest for later, or escalate it because it genuinely needs your attention. The goal is not faster processing -- it is fewer messages that need processing.
+
+This distinction matters because the AI adoption paradox shows that faster-inbox tools are not solving the problem. Despite widespread AI adoption, messaging time is up 145% and email time is up 104%. Helping people process messages faster just means they can handle the ever-increasing volume -- it does not reduce the volume. The productivity drain from context switching persists because the interruptions persist.
+
+The positioning line -- "You only see the messages that need you" -- encapsulates this. It is not about AI-powered communication. It is about less communication, powered by AI. In a market saturated with tools that add more AI-generated content, the counter-position of removing content is distinctive and defensible.

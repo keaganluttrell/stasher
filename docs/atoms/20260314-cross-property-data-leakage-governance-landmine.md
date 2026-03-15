@@ -1,0 +1,29 @@
+---
+title: >-
+  Cross-property data leakage is the hardest governance problem in
+  multi-property AI
+description: >-
+  A regional manager context that leaks Property A's HR investigation into
+  Property B's dashboard is a termination-level incident
+date: 2026-03-14T00:00:00.000Z
+group: atoms
+type: note
+id: 20260314-cross-property-data-leakage-governance-landmine
+links:
+  - 20260314-two-scopes-one-pipeline
+  - 20260314-human-in-the-loop-eight-mandatory-gates
+  - 20260314-cross-property-pattern-detection-via-embeddings
+  - 20260314-asymmetric-risk-false-low-worse-than-false-high
+source: projects/autoproxy/GOVERNANCE
+created_by: agent
+---
+
+Cross-property intelligence (Phase 6 in the governance framework) is the hardest governance problem in the AutoProxy system. The failure mode is not incorrect routing or a wrong auto-response -- it is information leaking across organizational boundaries.
+
+The scenario: a regional manager oversees Properties A and B. AutoProxy's cross-property intelligence aggregates data across both properties for pattern detection and executive digests. If Property A has an ongoing HR investigation and Property B's operational dashboard includes any mention of it -- even indirectly through pattern-matched classifications -- this is a termination-level incident. HR data, legal proceedings, financial negotiations, and personnel issues at one property must never surface in another property's context.
+
+The governance framework mandates: each property's data must be in a separate LLM context. Cross-property aggregation uses only pre-computed, anonymized metrics -- never raw message content. The data that can flow between properties is statistical (occupancy rate, task completion rate, revenue figures) not textual (actual messages, names, specifics).
+
+This creates a tension with the pattern detection feature. Pattern detection needs to compare messages across properties to find semantic similarity. The resolution: embeddings (numerical vectors) cross property boundaries; message content does not. The canonical question is generated from the cluster of embeddings, not by passing raw messages from multiple properties into a single LLM context.
+
+The governance committee deferred cross-property intelligence (marked "DEFER -- data boundary architecture not proven") until the data boundary architecture is validated. The approval chain for enabling cross-property features requires VP Operations, CTO, and Legal -- the highest-authority approval in the system. This is deliberate: the consequences of getting it wrong are not just product failures but legal and employment liabilities.

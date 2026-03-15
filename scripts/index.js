@@ -78,10 +78,16 @@ for (const entry of index) {
 }
 
 // Write individual doc JSON files to static/docs/<slug>.json
+// Include pre-parsed frontmatter so the client doesn't need a YAML parser
 for (const doc of index) {
   const docFile = path.join(DOCS_OUT_DIR, `${doc.slug}.json`);
   fs.mkdirSync(path.dirname(docFile), { recursive: true });
-  fs.writeFileSync(docFile, JSON.stringify({ content: doc._raw }));
+  const { data: fm, content: body } = matter(doc._raw);
+  // Normalise date to ISO string for consistent client-side handling
+  if (fm.date instanceof Date) {
+    fm.date = fm.date.toISOString();
+  }
+  fs.writeFileSync(docFile, JSON.stringify({ content: doc._raw, frontmatter: fm, body }));
 }
 
 console.log(`✓ Wrote ${index.length} doc files → static/docs/`);

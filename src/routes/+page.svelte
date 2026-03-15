@@ -77,10 +77,12 @@
   function formatDate(dateStr) {
     if (!dateStr) return '';
     try {
-      const d = new Date(dateStr);
+      const str = String(dateStr);
+      const d = str.includes('T') ? new Date(str) : new Date(str + 'T00:00:00');
+      if (isNaN(d.getTime())) return str;
       return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
     } catch {
-      return dateStr;
+      return String(dateStr);
     }
   }
 
@@ -266,8 +268,16 @@
                 </p>
               {/if}
 
-              <!-- Footer: date -->
-              <div class="flex items-center justify-end gap-2 mt-auto pt-2.5 border-t border-base-300/15">
+              <!-- Footer: type badge + date -->
+              <div class="flex items-center justify-between gap-2 mt-auto pt-2.5 border-t border-base-300/15">
+                <div class="flex items-center gap-1.5">
+                  {#if doc.type && doc.type !== 'doc'}
+                    <span class="doc-type-chip doc-type-chip-{doc.type}">{doc.type}</span>
+                  {/if}
+                  {#if doc.source}
+                    <span class="text-[0.6rem] opacity-25" title="Source: {doc.source}">&#x1F517;</span>
+                  {/if}
+                </div>
                 {#if doc.date}
                   <span class="text-[0.65rem] opacity-30 whitespace-nowrap shrink-0">{formatDate(doc.date)}</span>
                 {/if}
@@ -296,3 +306,29 @@
     </p>
   </div>
 {/if}
+
+<style>
+  .doc-type-chip {
+    display: inline-block;
+    font-size: 0.6rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    padding: 0.1em 0.45em;
+    border-radius: 3px;
+    line-height: 1.4;
+    opacity: 0.85;
+  }
+  .doc-type-chip-note {
+    background: color-mix(in oklch, var(--color-primary, #546e7a) 15%, transparent);
+    color: var(--color-primary, #546e7a);
+  }
+  .doc-type-chip-source {
+    background: color-mix(in oklch, #8e6bbf 15%, transparent);
+    color: #8e6bbf;
+  }
+  .doc-type-chip-map {
+    background: color-mix(in oklch, #d4883a 15%, transparent);
+    color: #d4883a;
+  }
+</style>

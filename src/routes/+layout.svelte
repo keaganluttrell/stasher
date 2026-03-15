@@ -10,6 +10,7 @@
   import { user, authState, initAuth } from '$lib/auth.js';
   import { loadPreferences, savePreferences } from '$lib/preferences.js';
   import TreeNode from '$lib/components/TreeNode.svelte';
+  import CommandPalette from '$lib/components/CommandPalette.svelte';
 
 
   let query = '';
@@ -20,6 +21,7 @@
   let searchInput;
   let docTreeEl;
   let canScrollMore = false;
+  let commandPaletteOpen = false;
 
   // Collapsible groups state
   let openGroups = {};
@@ -246,13 +248,13 @@
   }
 
   function handleKeydown(e) {
-    // Cmd+K / Ctrl+K to focus search
+    // Cmd+K / Ctrl+K to open command palette
     if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
       e.preventDefault();
-      searchInput?.focus();
+      commandPaletteOpen = !commandPaletteOpen;
       return;
     }
-    // "/" to focus search when no input is focused
+    // "/" to focus sidebar search when no input is focused
     if (e.key === '/' && !['INPUT', 'TEXTAREA', 'SELECT'].includes(document.activeElement?.tagName)) {
       e.preventDefault();
       searchInput?.focus();
@@ -450,3 +452,6 @@
     <slot />
   </div>
 </main>
+
+<!-- Command palette (Cmd+K) -->
+<CommandPalette bind:open={commandPaletteOpen} />

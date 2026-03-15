@@ -35,7 +35,21 @@ export async function getDoc(slug) {
     throw new Error(`Could not load doc "${slug}": ${res.status} ${res.statusText}`);
   }
   const data = await res.json();
-  const { frontmatter, body } = parseFrontmatter(data.content);
+
+  // Prefer pre-parsed frontmatter/body from the build step (handles YAML multiline, etc.)
+  let frontmatter, body;
+  if (data.frontmatter) {
+    frontmatter = data.frontmatter;
+    body = data.body ?? '';
+  } else {
+    // Fallback: simple line-by-line parser for older builds
+    ({ frontmatter, body } = parseFrontmatter(data.content));
+  }
+
+  // Normalise date to string (gray-matter may serialise Date objects as ISO strings)
+  if (frontmatter.date instanceof Date) {
+    frontmatter.date = frontmatter.date.toISOString();
+  }
 
   // Strip leading H1 if it duplicates the frontmatter title
   let cleanBody = body;

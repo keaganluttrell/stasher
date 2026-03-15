@@ -219,6 +219,8 @@
     description={frontmatter.description ?? ''}
     date={frontmatter.date ?? ''}
     status={frontmatter.status ?? ''}
+    type={frontmatter.type ?? 'doc'}
+    source={frontmatter.source ?? ''}
     {editing}
     {saving}
     hasToken={!!$config.token}
@@ -235,20 +237,27 @@
     </article>
 
     {#if backlinks.length > 0}
-      <hr />
-      <details open>
-        <summary><strong>Backlinks</strong> <small>({backlinks.length})</small></summary>
-        <ul>
+      <nav class="backlinks-section" aria-label="Backlinks">
+        <div class="backlinks-header">
+          <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+          </svg>
+          <strong>{backlinks.length} {backlinks.length === 1 ? 'note links' : 'notes link'} here</strong>
+        </div>
+        <div class="backlinks-list">
           {#each backlinks as bl}
-            <li>
-              <a href="{base}/doc/{bl.slug}">{bl.title}</a>
-              {#if bl.description}
-                <br /><small>{bl.description}</small>
+            <a href="{base}/doc/{bl.slug}" class="backlink-card">
+              {#if bl.type && bl.type !== 'doc'}
+                <span class="backlink-type backlink-type-{bl.type}">{bl.type}</span>
               {/if}
-            </li>
+              <span class="backlink-title">{bl.title}</span>
+              {#if bl.description}
+                <span class="backlink-desc">{bl.description}</span>
+              {/if}
+            </a>
           {/each}
-        </ul>
-      </details>
+        </div>
+      </nav>
     {/if}
   {/if}
 {/if}
@@ -256,11 +265,86 @@
 <style>
   :global(.wikilink) {
     text-decoration-style: dotted;
+    text-decoration-color: color-mix(in oklch, var(--pico-primary, #546e7a) 50%, transparent);
+    text-underline-offset: 3px;
+  }
+  :global(.wikilink::before) {
+    content: '\u29C9 ';
+    font-size: 0.75em;
+    opacity: 0.5;
   }
   :global(.wikilink-broken) {
     color: var(--pico-del-color, #e53e3e);
     text-decoration: line-through;
     opacity: 0.6;
     cursor: help;
+  }
+
+  /* Backlinks section */
+  .backlinks-section {
+    margin-top: 3rem;
+    padding: 1.25rem;
+    border-radius: 0.5rem;
+    background: color-mix(in oklch, var(--pico-card-background-color, var(--pico-background-color)) 80%, transparent);
+    border: 1px solid color-mix(in oklch, var(--pico-muted-border-color, #ddd) 50%, transparent);
+  }
+  .backlinks-header {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.8rem;
+    opacity: 0.6;
+    margin-bottom: 0.75rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid color-mix(in oklch, var(--pico-muted-border-color, #ddd) 30%, transparent);
+  }
+  .backlinks-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+  }
+  .backlink-card {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 0.4rem;
+    padding: 0.4rem 0.6rem;
+    border-radius: 0.35rem;
+    text-decoration: none;
+    transition: background 0.15s;
+    font-size: 0.85rem;
+  }
+  .backlink-card:hover {
+    background: color-mix(in oklch, var(--pico-primary, #546e7a) 8%, transparent);
+  }
+  .backlink-title {
+    font-weight: 500;
+  }
+  .backlink-desc {
+    flex-basis: 100%;
+    font-size: 0.75rem;
+    opacity: 0.45;
+    line-height: 1.4;
+  }
+  .backlink-type {
+    font-size: 0.6rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    padding: 0.1em 0.4em;
+    border-radius: 3px;
+    opacity: 0.7;
+  }
+  .backlink-type-note {
+    background: color-mix(in oklch, var(--pico-primary, #546e7a) 12%, transparent);
+    color: var(--pico-primary, #546e7a);
+  }
+  .backlink-type-source {
+    background: color-mix(in oklch, #8e6bbf 12%, transparent);
+    color: #8e6bbf;
+  }
+  .backlink-type-map {
+    background: color-mix(in oklch, #d4883a 12%, transparent);
+    color: #d4883a;
   }
 </style>

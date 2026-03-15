@@ -1,0 +1,31 @@
+---
+title: >-
+  Shadow mode validation requires 500 messages at 92% accuracy before any
+  capability goes live
+description: >-
+  Every AutoProxy capability runs in log-only mode first, with calibration gates
+  catching models that are confidently wrong
+date: 2026-03-14T00:00:00.000Z
+group: atoms
+type: note
+id: 20260314-shadow-mode-before-any-capability-goes-live
+links:
+  - 20260314-confidence-uncanny-valley
+  - 20260314-confidence-scoring-three-signals
+  - 20260314-kill-switch-five-levels-of-granularity
+  - 20260314-trust-destruction-ai-detected-communication
+source: projects/autoproxy/GOVERNANCE
+created_by: agent
+---
+
+Before any AutoProxy capability goes live at a property, it must pass through shadow mode: a minimum 2-week period where the system logs what it would do but takes no action. Users see nothing. The system processes every message, classifies it, determines what it would route and to whom, but the results are stored for human review, not executed.
+
+Exit criteria for shadow mode: classification accuracy above 92%, urgency accuracy above 90%, and zero data boundary violations. Only after passing these gates does the capability move to the next rollout phase.
+
+The calibration gate is the subtlest and most important validation. Before any capability ships, 500 messages go through shadow mode. If the model outputs confidence above 0.95 on more than 60% of those messages, the scores are poorly calibrated and the capability must not ship. This catches the most dangerous failure mode: a model that is confidently wrong.
+
+A well-calibrated model is uncertain about ambiguous messages and confident about clear ones. A poorly calibrated model is confident about everything, which means the confidence threshold provides no filtering value. You cannot trust a 0.95 threshold if the model reports 0.95+ on 80% of messages -- at that point, the threshold is not selecting for accuracy but passing everything through.
+
+The per-property phased rollout after shadow mode: Classification + Focus Mode (2 weeks, override rate < 20%), Routing + Suggestions (4 weeks, routing accuracy > 90%, suggestion acceptance > 40%), Escalation Chains (4 weeks, 70% first-level resolution), Auto-Response Pilot (4 weeks, accuracy > 97%, positive trust survey).
+
+Total time from shadow mode to full auto-response: minimum 14 weeks per property. This is deliberately slow because trust, once lost, is nearly impossible to rebuild.
