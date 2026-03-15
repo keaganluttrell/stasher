@@ -135,6 +135,15 @@
     "excerpt": "Brand Fit Ratings\n\n- **AutoProxy: Perfect.** The tagline made into software. Counter-positioned against every AI messaging tool. The market gap is real and defensible.\n- **Stacker: Strong.** Composable domain architecture and single-business philosophy align cleanly with Right-Sized by Design and Self-Sufficiency. Risk is scope -- 12+ domains is a lot of surface for one builder.\n\nHospitality Tension Resolution\n\nLead with hospitality. Never apologize for the vertical. Expand deliberately.\n\n- Vert"
   },
   {
+    "slug": "projects/soloscaler/solos-product-suite",
+    "title": "SolOS Product Suite",
+    "description": "Overview of the five core SolOS tools — Stasher, Staffer, Stacker, Static, and AutoProxy",
+    "tags": "soloscaler, solos, product-suite, stasher, staffer, stacker, static, autoproxy",
+    "group": "projects/soloscaler",
+    "date": "2026-03-14T00:00:00.000Z",
+    "excerpt": "Overview\n\nSolOS is the Soloscaler Operating System. Its logo is a Sun. The platform consists of five core tools that work together to give soloscalers and small businesses full control over their data, their time, and their operations.\n\nThe stack solves one core problem: **time reclamation**. Whether you are a soloscaler fielding client questions or a startup bleeding hours to shoulder-tapping and disorganization, SolOS eliminates the noise and keeps the signal strong.\n\nStasher — The Knowledge M"
+  },
+  {
     "slug": "projects/soloscaler/validation-pipeline",
     "title": "Soloscaler Product Validation Pipeline",
     "description": "Four-wave validation pipeline with kill gates, agent mappings, and execution playbook for validating any Soloscaler product idea",

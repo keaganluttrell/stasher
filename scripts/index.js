@@ -28,7 +28,7 @@ function walk(dir, base = '') {
     const relativePath = path.join(base, entry.name);
 
     if (entry.isDirectory()) {
-      if (entry.name.startsWith('_')) continue; // skip _templates, etc.
+      if (entry.name.startsWith('_') || entry.name === 'preferences') continue; // skip _templates, preferences, etc.
       results.push(...walk(fullPath, relativePath));
     } else if (entry.name.endsWith('.md')) {
       const raw = fs.readFileSync(fullPath, 'utf-8');
