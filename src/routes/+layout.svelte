@@ -12,8 +12,12 @@
   import { editorState } from '$lib/stores/editor.js';
   import CommandPalette from '$lib/components/CommandPalette.svelte';
   import KeyBar from '$lib/components/KeyBar.svelte';
+  import AuthGate from '$lib/components/AuthGate.svelte';
 
   let commandPaletteOpen = false;
+
+  // Gate: show the app only when authenticated
+  $: authenticated = $authState === 'authenticated';
 
   // Git-backed preferences
   let prefs = null;
@@ -97,7 +101,7 @@
     }
 
     // Cmd+S: save (allowed in editable contexts when editing)
-    if (metaOrCtrl && e.key === 's') {
+    if (metaOrCtrl && e.key === 's' && !e.shiftKey) {
       if ($editorState.editing) {
         e.preventDefault();
         $editorState.save();
@@ -111,22 +115,29 @@
     // Block remaining custom shortcuts if inside editable element
     if (inEditable) return;
 
-    // Cmd+,: settings
-    if (metaOrCtrl && e.key === ',') {
+    // Cmd+Shift+H: home
+    if (metaOrCtrl && e.shiftKey && (e.key === 'h' || e.key === 'H')) {
+      e.preventDefault();
+      goto(base + '/');
+      return;
+    }
+
+    // Cmd+.: settings
+    if (metaOrCtrl && e.key === '.') {
       e.preventDefault();
       goto(base + '/settings');
       return;
     }
 
-    // Cmd+N: create new doc
-    if (metaOrCtrl && e.key === 'n') {
+    // Cmd+J: create new doc
+    if (metaOrCtrl && e.key === 'j') {
       e.preventDefault();
       goto(base + '/doc/new');
       return;
     }
 
-    // Cmd+E: edit doc
-    if (metaOrCtrl && e.key === 'e') {
+    // Cmd+Shift+E: edit doc
+    if (metaOrCtrl && e.shiftKey && (e.key === 'e' || e.key === 'E')) {
       e.preventDefault();
       if ($editorState.canEdit && !$editorState.editing) {
         $editorState.startEdit();
@@ -142,119 +153,30 @@
 
 <svelte:window on:keydown={handleKeydown} />
 
-<!-- Top bar -->
-<header class="topbar">
-  <div class="topbar-inner">
-    <!-- Left: logo -->
-    <a href="{base}/" class="topbar-brand no-underline">stasher</a>
-
-    <!-- Right: settings -->
-    <div class="topbar-actions">
-      <a href="{base}/settings" class="topbar-icon-btn" aria-label="Settings" title="Settings">
-        {#if $authState === 'authenticated' && $user}
-          <img src={$user.avatar_url} alt={$user.login} class="topbar-avatar" />
-        {:else}
-          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.066 2.573c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.573 1.066c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.066-2.573c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-          </svg>
-        {/if}
-      </a>
+{#if authenticated}
+  <!-- Content: full width, centered -->
+  <main class="main-content">
+    <div class="content-container">
+      <slot />
     </div>
-  </div>
-</header>
+  </main>
 
-<!-- Content: full width, centered -->
-<main class="main-content">
-  <div class="content-container">
-    <slot />
-  </div>
-</main>
+  <!-- KeyBar: fixed top-left shortcuts with logo -->
+  <KeyBar onSearch={toggleSearch} />
 
-<!-- KeyBar: fixed bottom-left shortcuts -->
-<KeyBar onSearch={toggleSearch} />
-
-<!-- Command palette (Cmd+K) -->
-<CommandPalette bind:open={commandPaletteOpen} />
+  <!-- Command palette (Cmd+K) -->
+  <CommandPalette bind:open={commandPaletteOpen} />
+{:else}
+  <AuthGate />
+{/if}
 
 <style>
-  /* ── Top bar ─────────────────────────────────────────────────────── */
-  .topbar {
-    position: sticky;
-    top: 0;
-    z-index: 100;
-    background: color-mix(in oklch, var(--color-base-100, #1d232a) 85%, transparent);
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
-    border-bottom: 1px solid color-mix(in oklch, var(--color-base-300, #374151) 30%, transparent);
-  }
-
-  .topbar-inner {
-    max-width: 72rem;
-    margin: 0 auto;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 0.5rem 1rem;
-    gap: 0.75rem;
-  }
-
-  .topbar-brand {
-    font-family: 'Unbounded', sans-serif;
-    font-weight: 900;
-    font-size: 1.15rem;
-    letter-spacing: -0.02em;
-    background: linear-gradient(to right, var(--color-primary), var(--color-accent));
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-    flex-shrink: 0;
-    line-height: 1;
-  }
-
-  .topbar-actions {
-    display: flex;
-    align-items: center;
-    gap: 0.25rem;
-  }
-
-  /* Icon button base */
-  .topbar-icon-btn {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 2rem;
-    height: 2rem;
-    border-radius: 0.375rem;
-    border: none;
-    background: transparent;
-    color: var(--color-base-content, #a6adbb);
-    opacity: 0.55;
-    cursor: pointer;
-    transition: all 0.15s ease;
-    text-decoration: none;
-    flex-shrink: 0;
-  }
-
-  .topbar-icon-btn:hover {
-    opacity: 1;
-    background: color-mix(in oklch, var(--color-base-content, #a6adbb) 8%, transparent);
-  }
-
-  /* User avatar in top bar */
-  .topbar-avatar {
-    width: 1.35rem;
-    height: 1.35rem;
-    border-radius: 50%;
-    object-fit: cover;
-  }
-
   /* ── Main content ───────────────────────────────────────────────── */
   .main-content {
-    min-height: calc(100vh - 3rem);
+    min-height: 100vh;
     display: flex;
     justify-content: center;
-    padding-bottom: 3.5rem;
+    padding-bottom: 1rem;
   }
 
   .content-container {
@@ -267,11 +189,9 @@
     .content-container {
       padding: 1.25rem 1rem;
     }
-    .topbar-inner {
-      padding: 0.5rem 0.75rem;
-    }
     .main-content {
-      padding-bottom: 4rem;
+      padding-top: 7rem;
+      padding-bottom: 1rem;
     }
   }
 </style>
