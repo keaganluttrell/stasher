@@ -59,14 +59,22 @@
     loadUserPreferences();
   }
 
+  function handleOpenCommandPalette() {
+    commandPaletteOpen = true;
+  }
+
   onMount(async () => {
     initAuth();
     document.documentElement.dataset.theme = $theme;
     await loadIndex();
+    window.addEventListener('stasher:open-command-palette', handleOpenCommandPalette);
   });
 
   onDestroy(() => {
     if (prefsSaveTimer) clearTimeout(prefsSaveTimer);
+    if (browser) {
+      window.removeEventListener('stasher:open-command-palette', handleOpenCommandPalette);
+    }
   });
 
   // Keep DOM in sync with theme
@@ -176,7 +184,6 @@
     min-height: 100vh;
     display: flex;
     justify-content: center;
-    padding-bottom: 1rem;
   }
 
   .content-container {
@@ -186,12 +193,11 @@
   }
 
   @media (max-width: 639px) {
+    .main-content {
+      padding-top: 12rem;
+    }
     .content-container {
       padding: 1.25rem 1rem;
-    }
-    .main-content {
-      padding-top: 7rem;
-      padding-bottom: 1rem;
     }
   }
 </style>
