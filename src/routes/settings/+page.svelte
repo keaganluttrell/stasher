@@ -1,6 +1,8 @@
 <script>
   import { config } from '$lib/config.js';
   import { user, authState, authError, deviceFlowData, startDeviceFlow, cancelDeviceFlow, logout, getToken } from '$lib/auth.js';
+  import { theme, THEMES } from '$lib/theme.js';
+  import { loadPreferences, savePreferences } from '$lib/preferences.js';
 
   let owner = $config.owner;
   let repo = $config.repo;
@@ -42,6 +44,23 @@
   // Sync token from auth store into local state when auth completes
   $: if ($user?.token && $authState === 'authenticated') {
     token = $user.token;
+  }
+
+  // Theme selection
+  let prefsSaveTimer = null;
+
+  function selectTheme(t) {
+    theme.set(t);
+    schedulePrefsSave();
+  }
+
+  function schedulePrefsSave() {
+    if (!$user || !owner || !repo) return;
+    if (prefsSaveTimer) clearTimeout(prefsSaveTimer);
+    prefsSaveTimer = setTimeout(async () => {
+      const updatedPrefs = { theme: $theme };
+      await savePreferences($user.login, updatedPrefs, owner, repo, branch);
+    }, 3000);
   }
 </script>
 
@@ -221,6 +240,41 @@
     </div>
   </div>
 
+  <!-- Theme section -->
+  <div class="card bg-base-200/50 border border-base-300/40">
+    <div class="card-body gap-4">
+      <h2 class="text-sm font-semibold uppercase tracking-wider opacity-60 mb-1 flex items-center gap-2">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01" />
+        </svg>
+        Theme
+      </h2>
+      <div class="theme-grid">
+        {#each THEMES as t}
+          <button
+            class="theme-card"
+            class:active={$theme === t}
+            on:click={() => selectTheme(t)}
+          >
+            <div class="theme-swatches">
+              <span data-theme={t} style="background: var(--color-primary)"></span>
+              <span data-theme={t} style="background: var(--color-secondary)"></span>
+              <span data-theme={t} style="background: var(--color-accent)"></span>
+              <span data-theme={t} style="background: var(--color-neutral)"></span>
+              <span data-theme={t} style="background: var(--color-base-100)"></span>
+            </div>
+            <span class="theme-card-name">{t}</span>
+            {#if $theme === t}
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 text-success shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+              </svg>
+            {/if}
+          </button>
+        {/each}
+      </div>
+    </div>
+  </div>
+
   <!-- Repository section -->
   <div class="card bg-base-200/50 border border-base-300/40">
     <form on:submit|preventDefault={save} class="card-body gap-6">
@@ -269,3 +323,56 @@
   </div>
 
 </div>
+
+<style>
+  .theme-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(10rem, 1fr));
+    gap: 0.35rem;
+  }
+
+  .theme-card {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    width: 100%;
+    padding: 0.4rem 0.55rem;
+    border-radius: 0.35rem;
+    border: 1px solid transparent;
+    background: transparent;
+    color: var(--color-base-content, #a6adbb);
+    cursor: pointer;
+    font-family: 'Nunito', sans-serif;
+    font-size: 0.8rem;
+    transition: all 0.1s ease;
+  }
+
+  .theme-card:hover {
+    background: color-mix(in oklch, var(--color-base-content, #a6adbb) 6%, transparent);
+  }
+
+  .theme-card.active {
+    background: color-mix(in oklch, var(--color-base-content, #a6adbb) 8%, transparent);
+    border-color: color-mix(in oklch, var(--color-primary, #546e7a) 40%, transparent);
+  }
+
+  .theme-swatches {
+    display: flex;
+    gap: 1px;
+    flex-shrink: 0;
+  }
+
+  .theme-swatches span {
+    width: 0.7rem;
+    height: 0.9rem;
+    display: block;
+  }
+
+  .theme-swatches span:first-child { border-radius: 2px 0 0 2px; }
+  .theme-swatches span:last-child  { border-radius: 0 2px 2px 0; }
+
+  .theme-card-name {
+    flex: 1;
+    text-align: left;
+  }
+</style>

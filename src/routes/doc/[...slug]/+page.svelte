@@ -9,6 +9,7 @@
   import { getIndex, lookupById } from '$lib/search.js';
   import { marked } from 'marked';
   import DocHeader from '$lib/components/DocHeader.svelte';
+  import { editorState, resetEditorState } from '$lib/stores/editor.js';
 
   const renderer = new marked.Renderer();
   renderer.heading = function ({ text, depth }) {
@@ -170,10 +171,20 @@
 
   onDestroy(() => {
     milkdownEditor?.destroy();
+    resetEditorState();
   });
 
-  $: renderedHtml = body ? marked(body).replace(/<table/g, '<div class="table-wrap"><table').replace(/<\/table>/g, '</table></div>') : '';
   $: isNew = slug === 'new';
+  $: renderedHtml = body ? marked(body).replace(/<table/g, '<div class="table-wrap"><table').replace(/<\/table>/g, '</table></div>') : '';
+
+  // Sync editor state to the global store for keybindings
+  $: editorState.set({
+    editing,
+    canEdit: !!$config.token && loaded && !isNew && !error,
+    startEdit,
+    save,
+    cancelEdit
+  });
 
   // Backlinks: find the current doc's index entry and resolve its backlinks
   $: currentEntry = loaded && slug ? getIndex().find(d => d.slug === slug) : null;
