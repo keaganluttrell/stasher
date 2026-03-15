@@ -3,12 +3,14 @@
   import { page } from '$app/stores';
   import { goto } from '$app/navigation';
   import { base } from '$app/paths';
+  import { browser } from '$app/environment';
   import { config } from '$lib/config.js';
   import { getDoc } from '$lib/docs.js';
   import { getFile, putFile } from '$lib/github.js';
   import { getIndex, lookupById } from '$lib/search.js';
   import { marked } from 'marked';
   import DocHeader from '$lib/components/DocHeader.svelte';
+  import TypeBadge from '$lib/components/TypeBadge.svelte';
   import { editorState, resetEditorState } from '$lib/stores/editor.js';
 
   const renderer = new marked.Renderer();
@@ -177,6 +179,18 @@
   $: isNew = slug === 'new';
   $: renderedHtml = body ? marked(body).replace(/<table/g, '<div class="table-wrap"><table').replace(/<\/table>/g, '</table></div>') : '';
 
+  // Build table of contents from rendered headings for map documents
+  $: tocItems = (() => {
+    if (frontmatter.type !== 'map' || !renderedHtml || !browser) return [];
+    const div = document.createElement('div');
+    div.innerHTML = renderedHtml;
+    return [...div.querySelectorAll('h2, h3')].map(h => ({
+      id: h.id,
+      text: h.textContent,
+      level: parseInt(h.tagName[1])
+    }));
+  })();
+
   // Sync editor state to the global store for keybindings
   $: editorState.set({
     editing,
@@ -240,6 +254,19 @@
     onCancel={cancelEdit}
   />
 
+  {#if frontmatter.type === 'map' && tocItems.length > 0 && !editing}
+    <nav class="map-toc" aria-label="Table of contents">
+      <h3 class="map-toc-title">Contents</h3>
+      <ol class="map-toc-list">
+        {#each tocItems as item}
+          <li class:indent={item.level === 3}>
+            <a href="#{item.id}">{item.text}</a>
+          </li>
+        {/each}
+      </ol>
+    </nav>
+  {/if}
+
   {#if editing}
     <div bind:this={editorEl} class="border border-base-300 rounded-lg min-h-[400px] p-4"></div>
   {:else}
@@ -259,7 +286,7 @@
           {#each backlinks as bl}
             <a href="{base}/doc/{bl.slug}" class="backlink-card">
               {#if bl.type && bl.type !== 'doc'}
-                <span class="backlink-type backlink-type-{bl.type}">{bl.type}</span>
+                <TypeBadge type={bl.type} size="sm" />
               {/if}
               <span class="backlink-title">{bl.title}</span>
               {#if bl.description}
@@ -289,6 +316,48 @@
     text-decoration: line-through;
     opacity: 0.6;
     cursor: help;
+  }
+
+  /* Map table of contents */
+  .map-toc {
+    margin-bottom: 2rem;
+    padding: 1.25rem;
+    border-radius: 0.5rem;
+    background: color-mix(in oklch, var(--pico-card-background-color, var(--pico-background-color)) 80%, transparent);
+    border: 1px solid color-mix(in oklch, var(--pico-muted-border-color, #ddd) 50%, transparent);
+  }
+  .map-toc-title {
+    font-size: 0.8rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    opacity: 0.6;
+    margin: 0 0 0.75rem 0;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid color-mix(in oklch, var(--pico-muted-border-color, #ddd) 30%, transparent);
+  }
+  .map-toc-list {
+    margin: 0;
+    padding-left: 1.25rem;
+    list-style-type: decimal;
+  }
+  .map-toc-list li {
+    font-size: 0.8rem;
+    line-height: 1.8;
+    padding: 0;
+    margin: 0;
+  }
+  .map-toc-list li.indent {
+    padding-left: 1rem;
+    list-style-type: lower-alpha;
+  }
+  .map-toc-list li a {
+    color: var(--pico-color, inherit);
+    text-decoration: none;
+    transition: color 0.15s;
+  }
+  .map-toc-list li a:hover {
+    color: var(--pico-primary, #546e7a);
   }
 
   /* Backlinks section */
@@ -336,26 +405,5 @@
     font-size: 0.75rem;
     opacity: 0.45;
     line-height: 1.4;
-  }
-  .backlink-type {
-    font-size: 0.6rem;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.04em;
-    padding: 0.1em 0.4em;
-    border-radius: 3px;
-    opacity: 0.7;
-  }
-  .backlink-type-note {
-    background: color-mix(in oklch, var(--pico-primary, #546e7a) 12%, transparent);
-    color: var(--pico-primary, #546e7a);
-  }
-  .backlink-type-source {
-    background: color-mix(in oklch, #8e6bbf 12%, transparent);
-    color: #8e6bbf;
-  }
-  .backlink-type-map {
-    background: color-mix(in oklch, #d4883a 12%, transparent);
-    color: #d4883a;
   }
 </style>

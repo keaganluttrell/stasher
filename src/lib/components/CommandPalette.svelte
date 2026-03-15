@@ -3,6 +3,7 @@
   import { goto } from '$app/navigation';
   import { base } from '$app/paths';
   import { search, getIndex } from '$lib/search.js';
+  import TypeBadge from '$lib/components/TypeBadge.svelte';
 
   export let open = false;
 
@@ -20,14 +21,8 @@
     { key: 'doc',    label: 'Docs' },
   ];
 
-  const TYPE_META = {
-    note:   { label: 'note',   color: 'var(--color-primary, #546e7a)' },
-    source: { label: 'source', color: '#8e6bbf' },
-    map:    { label: 'map',    color: '#d4883a' },
-    doc:    { label: 'doc',    color: 'var(--color-base-content, #999)', muted: true },
-  };
-
   // Compute filtered results
+  $: indexLoaded = getIndex().length > 0;
   $: filteredResults = getFilteredResults(query, activeFilter);
   $: selectedIndex = Math.min(selectedIndex, Math.max(0, filteredResults.length - 1));
 
@@ -143,9 +138,6 @@
     }
   }
 
-  function getTypeMeta(type) {
-    return TYPE_META[type] || TYPE_META.doc;
-  }
 </script>
 
 <svelte:window on:keydown={handleKeydown} />
@@ -196,7 +188,13 @@
       <div class="cmd-results" bind:this={resultsEl}>
         {#if filteredResults.length === 0}
           <div class="cmd-empty">
-            {query.length > 1 ? 'No matching documents' : 'No documents found'}
+            {#if !indexLoaded}
+              Loading documents...
+            {:else if query.length > 1}
+              No matching documents
+            {:else}
+              No documents found
+            {/if}
           </div>
         {:else}
           {#if !query || query.length <= 1}
@@ -205,7 +203,6 @@
             </div>
           {/if}
           {#each filteredResults as doc, i}
-            {@const meta = getTypeMeta(doc.type)}
             <!-- svelte-ignore a11y-click-events-have-key-events -->
             <div
               class="cmd-result"
@@ -217,12 +214,7 @@
               aria-selected={i === selectedIndex}
             >
               <div class="cmd-result-main">
-                <span
-                  class="cmd-type-badge"
-                  style="color: {meta.color}; background: color-mix(in oklch, {meta.color} 15%, transparent);"
-                >
-                  {meta.label}
-                </span>
+                <TypeBadge type={doc.type} size="sm" />
                 <span class="cmd-result-title">{doc.title}</span>
               </div>
               <div class="cmd-result-meta">
@@ -405,20 +397,6 @@
     display: flex;
     align-items: center;
     gap: 0.5rem;
-  }
-
-  .cmd-type-badge {
-    display: inline-block;
-    font-size: 0.58rem;
-    font-weight: 700;
-    font-family: 'Plus Jakarta Sans', sans-serif;
-    text-transform: uppercase;
-    letter-spacing: 0.04em;
-    padding: 0.1em 0.4em;
-    border-radius: 3px;
-    line-height: 1.4;
-    flex-shrink: 0;
-    white-space: nowrap;
   }
 
   .cmd-result-title {

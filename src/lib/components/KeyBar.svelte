@@ -21,26 +21,29 @@
   $: canEdit = $editorState.canEdit;
 
   // Build visible shortcuts
-  $: shortcuts = buildShortcuts(isDocPage, editing, canEdit);
+  $: shortcuts = buildShortcuts(isDocPage, editing, canEdit, pathname);
 
-  function buildShortcuts(isDoc, ed, can) {
+  // Current pathname for active state detection
+  $: pathname = $page.url.pathname;
+
+  function buildShortcuts(isDoc, ed, can, _pathname) {
     const items = [
-      { key: 'K', mod: true, label: 'Search', action: () => onSearch(), icon: 'search' },
-      { key: 'I', mod: true, label: 'Home', action: () => goto(base + '/'), icon: 'home' },
-      { key: 'J', mod: true, label: 'Create', action: () => goto(base + '/doc/new'), icon: 'create' },
+      { key: 'K', mod: true, label: 'Search', action: () => onSearch(), icon: 'search', active: false },
+      { key: 'I', mod: true, label: 'Home', action: () => goto(base + '/'), icon: 'home', active: pathname === base + '/' || pathname === base },
+      { key: 'J', mod: true, label: 'Create', action: () => goto(base + '/doc/new'), icon: 'create', active: false },
     ];
 
     if (isDoc && !ed && can) {
-      items.push({ key: 'E', mod: true, shift: true, label: 'Edit', action: () => $editorState.startEdit(), icon: 'edit' });
+      items.push({ key: 'E', mod: true, shift: true, label: 'Edit', action: () => $editorState.startEdit(), icon: 'edit', active: false });
     }
 
     if (isDoc && ed) {
-      items.push({ key: 'S', mod: true, label: 'Save', action: () => $editorState.save(), icon: 'save' });
-      items.push({ key: 'Esc', label: 'Cancel', action: () => $editorState.cancelEdit(), icon: 'cancel', noMod: true });
+      items.push({ key: 'S', mod: true, label: 'Save', action: () => $editorState.save(), icon: 'save', active: false });
+      items.push({ key: 'Esc', label: 'Cancel', action: () => $editorState.cancelEdit(), icon: 'cancel', noMod: true, active: false });
     }
 
     // Settings always last
-    items.push({ key: '.', mod: true, label: 'Settings', action: () => goto(base + '/settings'), icon: 'settings' });
+    items.push({ key: '.', mod: true, label: 'Settings', action: () => goto(base + '/settings'), icon: 'settings', active: pathname.startsWith(base + '/settings') });
 
     return items;
   }
@@ -70,7 +73,7 @@
   <!-- Shortcut rows -->
   <div class="keybar-shortcuts">
     {#each shortcuts as s}
-      <button class="keybar-row" on:click={s.action} title="{formatKey(s)} {s.label}">
+      <button class="keybar-row" class:active={s.active} on:click={s.action} title="{formatKey(s)} {s.label}">
         <span class="keybar-label">{s.label}</span>
         <kbd class="keybar-kbd">{formatKey(s)}</kbd>
       </button>
@@ -178,6 +181,14 @@
 
   .keybar-row:hover {
     background: color-mix(in oklch, var(--color-base-content, #a6adbb) 10%, transparent);
+  }
+
+  .keybar-row.active {
+    background: color-mix(in oklch, var(--color-primary) 12%, transparent);
+  }
+  .keybar-row.active .keybar-label {
+    opacity: 1;
+    color: var(--color-primary);
   }
 
   .keybar-label {

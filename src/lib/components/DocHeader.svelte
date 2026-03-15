@@ -1,4 +1,6 @@
 <script>
+  import TypeBadge from '$lib/components/TypeBadge.svelte';
+
   export let title = '';
   export let description = '';
   export let date = '';
@@ -11,15 +13,6 @@
   export let onEdit = () => {};
   export let onSave = () => {};
   export let onCancel = () => {};
-
-  const TYPE_META = {
-    note:   { label: 'Note',   icon: '&#x270E;' },
-    source: { label: 'Source', icon: '&#x1F4D6;' },
-    map:    { label: 'Map',    icon: '&#x1F5FA;' },
-    doc:    { label: 'Doc',    icon: '&#x1F4C4;' },
-  };
-
-  $: typeMeta = TYPE_META[type] || TYPE_META.doc;
 
   function formatDate(dateStr) {
     if (!dateStr) return '';
@@ -59,7 +52,7 @@
   <!-- Meta row: type badge, date, status, edit button -->
   <div class="flex items-center justify-between gap-3 mt-4">
     <div class="flex items-center gap-3 text-xs opacity-50">
-      <span class="doc-type-badge doc-type-{type}">{@html typeMeta.icon} {typeMeta.label}</span>
+      <TypeBadge {type} size="md" />
       {#if date}
         <span class="flex items-center gap-1">
           <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -101,38 +94,4 @@
 </div>
 
 <style>
-  .doc-type-badge {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.25rem;
-    padding: 0.15em 0.55em;
-    border-radius: 999px;
-    font-size: 0.7rem;
-    font-weight: 600;
-    letter-spacing: 0.03em;
-    text-transform: uppercase;
-    opacity: 1;
-    line-height: 1;
-    white-space: nowrap;
-  }
-  .doc-type-note {
-    background: color-mix(in oklch, var(--pico-primary-background, #546e7a) 15%, transparent);
-    color: var(--pico-primary, #546e7a);
-    border: 1px solid color-mix(in oklch, var(--pico-primary, #546e7a) 25%, transparent);
-  }
-  .doc-type-source {
-    background: color-mix(in oklch, #8e6bbf 15%, transparent);
-    color: #8e6bbf;
-    border: 1px solid color-mix(in oklch, #8e6bbf 25%, transparent);
-  }
-  .doc-type-map {
-    background: color-mix(in oklch, #d4883a 15%, transparent);
-    color: #d4883a;
-    border: 1px solid color-mix(in oklch, #d4883a 25%, transparent);
-  }
-  .doc-type-doc {
-    background: color-mix(in oklch, var(--pico-muted-color, #999) 12%, transparent);
-    color: var(--pico-muted-color, #999);
-    border: 1px solid color-mix(in oklch, var(--pico-muted-color, #999) 20%, transparent);
-  }
 </style>
