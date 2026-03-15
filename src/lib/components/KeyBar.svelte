@@ -34,7 +34,7 @@
     ];
 
     if (isDoc && !ed && can) {
-      items.push({ key: 'E', mod: true, shift: true, label: 'Edit', action: () => $editorState.startEdit(), icon: 'edit', active: false });
+      items.push({ key: '/', mod: true, label: 'Edit', action: () => $editorState.startEdit(), icon: 'edit', active: false });
     }
 
     if (isDoc && ed) {

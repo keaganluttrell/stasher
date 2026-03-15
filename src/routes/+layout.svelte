@@ -144,8 +144,8 @@
       return;
     }
 
-    // Cmd+Shift+E: edit doc
-    if (metaOrCtrl && e.shiftKey && (e.key === 'e' || e.key === 'E')) {
+    // Cmd+/: edit doc
+    if (metaOrCtrl && e.key === '/') {
       e.preventDefault();
       if ($editorState.canEdit && !$editorState.editing) {
         $editorState.startEdit();
