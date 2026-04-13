@@ -1,18 +1,22 @@
 <script>
   import { onMount, onDestroy, tick } from 'svelte';
   import { page } from '$app/stores';
-  import { goto } from '$app/navigation';
+  import { goto, beforeNavigate } from '$app/navigation';
   import { base } from '$app/paths';
   import { browser } from '$app/environment';
   import { config } from '$lib/config.js';
   import { getDoc } from '$lib/docs.js';
-  import { getFile, putFile, createFile } from '$lib/github.js';
+  import { getFile, putFile, createFile, trashFile } from '$lib/github.js';
   import { getIndex, lookupById } from '$lib/search.js';
   import { marked } from 'marked';
   import DocHeader from '$lib/components/DocHeader.svelte';
   import TypeBadge from '$lib/components/TypeBadge.svelte';
   import { editorState, resetEditorState } from '$lib/stores/editor.js';
   import { user } from '$lib/auth.js';
+  import { recordVisit } from '$lib/stores/history.js';
+  import { pins, togglePin, isPinned } from '$lib/stores/pins.js';
+  import { bin, toggleBin, isInBin } from '$lib/stores/bin.js';
+  import { showToast } from '$lib/stores/toast.js';
 
   const renderer = new marked.Renderer();
   renderer.heading = function ({ text, depth }) {
@@ -62,8 +66,7 @@
   let milkdownEditor = null;
 
   // ── Create flow state ──────────────────────────────────────────────
-  let createStep = 1; // 1 = form, 2 = editor
-  let newType = 'note';
+  let newType = '';
   let newTitle = '';
   let newDescription = '';
   let newDate = new Date().toISOString().slice(0, 10);
@@ -71,15 +74,15 @@
   let createError = '';
 
   const TYPE_OPTIONS = [
-    { value: 'note', label: 'Atom', dir: 'atoms' },
-    { value: 'source', label: 'Note', dir: 'notes' },
-    { value: 'map', label: 'Map', dir: 'maps' },
-    { value: 'doc', label: 'Doc', dir: 'documents' },
+    { value: 'atom', label: 'Atom', dir: 'atoms', desc: 'A single, self-contained idea' },
+    { value: 'note', label: 'Note', dir: 'notes', desc: 'Summarised from a source' },
+    { value: 'map', label: 'Map', dir: 'maps', desc: 'Index linking related notes' },
+    { value: 'doc', label: 'Doc', dir: 'documents', desc: 'Long-form document or guide' },
   ];
 
   const TYPE_COLORS = {
-    note:   '#38bdf8',
-    source: '#a78bfa',
+    atom:   '#38bdf8',
+    note:   '#a78bfa',
     map:    '#f59e0b',
     doc:    '#94a3b8',
   };
@@ -94,7 +97,7 @@
   }
 
   $: newSlugBase = slugify(newTitle);
-  $: needsDatePrefix = newType === 'note' || newType === 'source';
+  $: needsDatePrefix = newType === 'atom' || newType === 'note';
   $: newFilename = (() => {
     if (!newSlugBase) return '';
     let name = newSlugBase;
@@ -122,14 +125,14 @@
       links: [],
       created_by: createdBy,
     };
-    if (newType === 'doc' || newType === 'source') {
+    if (newType === 'doc' || newType === 'note') {
       fm.source = '';
     }
     return fm;
   }
 
   function buildCreateBody() {
-    if (newType === 'source') {
+    if (newType === 'note') {
       return '\n## Key Takeaways\n\n- \n\n## Extracted Notes\n\n- \n';
     }
     if (newType === 'map') {
@@ -138,13 +141,51 @@
     return '\n';
   }
 
-  async function startCreateEditor() {
-    if (!newTitle.trim()) return;
-    createStep = 2;
-    await tick();
-    if (editorEl) {
-      await initMilkdown(buildCreateBody());
+  async function getEditorContent() {
+    if (!milkdownEditor) return '';
+    try {
+      const { getMarkdown } = await import('@milkdown/kit/utils');
+      return milkdownEditor.action(getMarkdown());
+    } catch {
+      return '';
     }
+  }
+
+  function isContentBeyondTemplate(content) {
+    const template = buildCreateBody().trim();
+    const current = (content || '').trim();
+    if (!current) return false;
+    return current !== template;
+  }
+
+  // Data loss prevention: beforeNavigate guard
+  beforeNavigate(async ({ cancel }) => {
+    if (isNew && milkdownEditor) {
+      const content = await getEditorContent();
+      if (isContentBeyondTemplate(content) || newTitle.trim()) {
+        if (!confirm('You have unsaved content that will be lost. Leave this page?')) {
+          cancel();
+        }
+      }
+    }
+  });
+
+  // Data loss prevention: beforeunload guard
+  function handleBeforeUnload(e) {
+    if (isNew && (newTitle.trim() || milkdownEditor)) {
+      e.preventDefault();
+      e.returnValue = '';
+    }
+  }
+
+  // Autofocus title and init editor when create page renders
+  $: if (isNew && browser) {
+    tick().then(async () => {
+      document.getElementById('create-title')?.focus();
+      if (editorEl && !milkdownEditor) {
+        await initMilkdown(buildCreateBody());
+      }
+    });
   }
 
   async function saveNewDoc() {
@@ -192,11 +233,70 @@
       body = doc.body;
       sha = '';
       loaded = true;
+      // Record this visit in history
+      if (frontmatter.title) {
+        recordVisit(s, frontmatter.title);
+      }
     } catch (e) {
       error = e.message;
       loaded = true;
     }
   }
+
+  // Pin state
+  $: currentPinned = $pins.some((p) => p.slug === slug);
+
+  function handleTogglePin() {
+    const title = frontmatter.title || slug;
+    const nowPinned = togglePin(slug, title);
+    showToast(nowPinned ? `Pinned: ${title}` : `Unpinned: ${title}`);
+  }
+
+  // Bin state
+  $: currentInBin = $bin.some((b) => b.slug === slug);
+
+  let trashing = false;
+
+  async function handleToggleBin() {
+    if (!$config.token || !$config.owner || !$config.repo) {
+      showToast('Configure GitHub token in Settings');
+      return;
+    }
+    const title = frontmatter.title || slug;
+    trashing = true;
+    showToast(`Moving to trash: ${title}...`);
+    try {
+      await trashFile($config.owner, $config.repo, slug, $config.branch);
+      toggleBin(slug, title); // track in localStorage for the bin panel
+      showToast(`Trashed: ${title}`);
+      goto(base + '/');
+    } catch (err) {
+      showToast(`Trash failed: ${err.message}`);
+    } finally {
+      trashing = false;
+    }
+  }
+
+  // Listen for pin/bin toggle events from keyboard shortcuts
+  function onPinEvent(e) {
+    if (e.detail?.slug === slug) {
+      handleTogglePin();
+    }
+  }
+
+  function onBinEvent(e) {
+    if (e.detail?.slug === slug) {
+      handleToggleBin();
+    }
+  }
+
+  onMount(() => {
+    if (browser) {
+      window.addEventListener('stasher:toggle-pin', onPinEvent);
+      window.addEventListener('stasher:toggle-bin', onBinEvent);
+      window.addEventListener('beforeunload', handleBeforeUnload);
+    }
+  });
 
   function parseFrontmatter(content) {
     const match = content.match(/^---\n([\s\S]*?)\n---\n([\s\S]*)$/);
@@ -242,6 +342,7 @@
   async function initMilkdown(content = '') {
     const { Editor, rootCtx, defaultValueCtx } = await import('@milkdown/core');
     const { commonmark } = await import('@milkdown/kit/preset/commonmark');
+    const { gfm } = await import('@milkdown/kit/preset/gfm');
     const { nord } = await import('@milkdown/theme-nord');
 
     milkdownEditor = await Editor.make()
@@ -251,6 +352,7 @@
       })
       .use(nord)
       .use(commonmark)
+      .use(gfm)
       .create();
   }
 
@@ -309,9 +411,26 @@
     }
   }
 
+  function formatDate(dateStr) {
+    if (!dateStr) return '';
+    try {
+      const str = String(dateStr);
+      const d = str.includes('T') ? new Date(str) : new Date(str + 'T00:00:00');
+      if (isNaN(d.getTime())) return str;
+      return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+    } catch {
+      return String(dateStr);
+    }
+  }
+
   onDestroy(() => {
     milkdownEditor?.destroy();
     resetEditorState();
+    if (browser) {
+      window.removeEventListener('stasher:toggle-pin', onPinEvent);
+      window.removeEventListener('stasher:toggle-bin', onBinEvent);
+      window.removeEventListener('beforeunload', handleBeforeUnload);
+    }
   });
 
   $: isNew = slug === 'new';
@@ -351,157 +470,76 @@
 
 {#if isNew}
   <div class="create-flow">
-    <!-- Breadcrumb -->
+    <!-- Back -->
     <div class="text-sm mb-4">
       <a href="{base}/" class="opacity-50 hover:opacity-80 hover:text-primary transition-all duration-200 no-underline inline-flex items-center gap-1">
         <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
         </svg>
-        All documents
+        Back
       </a>
     </div>
 
-    <h2 class="create-heading">Create New Document</h2>
+    <!-- Meta line: date + author -->
+    <div class="create-meta-line">
+      <span>{formatDate(newDate)}</span>
+      <span>{$user?.name || $user?.login || 'Unknown'}</span>
+    </div>
+
+    <!-- Title: inline editable heading -->
+    <input
+      id="create-title"
+      type="text"
+      class="create-title-input"
+      placeholder="Untitled"
+      bind:value={newTitle}
+    />
+
+    <!-- Type badges -->
+    <div class="create-type-badges">
+      {#each TYPE_OPTIONS as opt}
+        <button
+          type="button"
+          class="create-type-badge"
+          class:selected={newType === opt.value}
+          style="--badge-color: {TYPE_COLORS[opt.value]}"
+          on:click={() => newType = newType === opt.value ? '' : opt.value}
+        >
+          {opt.label}
+        </button>
+      {/each}
+    </div>
 
     {#if createError}
-      <div role="alert" class="alert alert-error mb-4">
-        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z" />
-        </svg>
-        <div>
-          <span class="font-semibold">Error</span>
-          <span>{createError}</span>
-        </div>
+      <div role="alert" class="alert alert-error mb-2 mt-2">
+        <span>{createError}</span>
       </div>
     {/if}
 
-    {#if createStep === 1}
-      <div class="create-form">
-        <!-- Type selector -->
-        <div class="form-control">
-          <label class="label" for="create-type">
-            <span class="label-text font-semibold">Type</span>
-          </label>
-          <div class="type-pills" id="create-type" role="radiogroup" aria-label="Document type">
-            {#each TYPE_OPTIONS as opt}
-              <button
-                type="button"
-                class="type-pill"
-                class:type-pill-active={newType === opt.value}
-                style="--pill-color: {TYPE_COLORS[opt.value]}"
-                on:click={() => newType = opt.value}
-                role="radio"
-                aria-checked={newType === opt.value}
-              >
-                {opt.label}
-              </button>
-            {/each}
-          </div>
-        </div>
+    <!-- Writing area: fills remaining space -->
+    <div class="create-editor-wrap">
+      <div bind:this={editorEl} class="editor-surface create-editor-full"></div>
+    </div>
 
-        <!-- Title -->
-        <div class="form-control">
-          <label class="label" for="create-title">
-            <span class="label-text font-semibold">Title <span class="text-error">*</span></span>
-          </label>
-          <input
-            id="create-title"
-            type="text"
-            class="input input-bordered w-full"
-            placeholder="e.g. Shoulder Tapping Tax"
-            bind:value={newTitle}
-            on:keydown={(e) => { if (e.key === 'Enter' && newTitle.trim()) startCreateEditor(); }}
-          />
-        </div>
-
-        <!-- Description -->
-        <div class="form-control">
-          <label class="label" for="create-desc">
-            <span class="label-text font-semibold">Description</span>
-          </label>
-          <input
-            id="create-desc"
-            type="text"
-            class="input input-bordered w-full"
-            placeholder="One-line summary (optional)"
-            bind:value={newDescription}
-          />
-        </div>
-
-        <!-- Date (read-only, auto-filled) -->
-        <div class="form-control">
-          <label class="label" for="create-date">
-            <span class="label-text font-semibold">Date</span>
-          </label>
-          <input
-            id="create-date"
-            type="date"
-            class="input input-bordered w-full"
-            bind:value={newDate}
-          />
-        </div>
-
-        <!-- Created by (read-only) -->
-        <div class="form-control">
-          <label class="label" for="create-author">
-            <span class="label-text font-semibold">Created by</span>
-          </label>
-          <input
-            id="create-author"
-            type="text"
-            class="input input-bordered w-full"
-            value={$user?.login || 'human'}
-            readonly
-          />
-        </div>
-
-        <!-- ID / filename preview -->
-        {#if newFilename}
-          <div class="form-control">
-            <label class="label">
-              <span class="label-text font-semibold">File path</span>
-            </label>
-            <div class="id-preview">
-              <span class="id-dir">docs/{newDirectory}/</span><span class="id-file">{newFilename}</span><span class="id-ext">.md</span>
-            </div>
-          </div>
-        {/if}
-
-        <!-- Start Writing button -->
-        <button
-          class="btn btn-primary mt-4 w-full"
-          disabled={!newTitle.trim() || !$config.token}
-          on:click={startCreateEditor}
-        >
-          Start Writing
-        </button>
-        {#if !$config.token}
-          <p class="text-sm opacity-50 mt-2 text-center">You need a GitHub token to create documents. Go to <a href="{base}/settings">Settings</a>.</p>
-        {/if}
+    <!-- Save -->
+    {#if !$config.token}
+      <div class="alert alert-warning mt-2">
+        <span>Connect GitHub to create documents.</span>
+        <a href="{base}/settings" class="btn btn-sm btn-primary">Settings</a>
       </div>
-
-    {:else if createStep === 2}
-      <!-- Step 2: Editor -->
-      <div class="create-editor-header">
-        <div class="create-editor-meta">
-          <TypeBadge type={newType} size="md" />
-          <span class="create-editor-title">{newTitle}</span>
-        </div>
-        <div class="create-editor-actions">
-          <button class="btn btn-ghost btn-sm" on:click={() => { createStep = 1; if (milkdownEditor) { milkdownEditor.destroy(); milkdownEditor = null; } }}>
-            Back
-          </button>
-          <button class="btn btn-primary btn-sm" disabled={creating} on:click={saveNewDoc}>
-            {#if creating}
-              <span class="loading loading-spinner loading-xs"></span>
-              Saving...
-            {:else}
-              Save
-            {/if}
-          </button>
-        </div>
-      </div>
-      <div bind:this={editorEl} class="border border-base-300 rounded-lg min-h-[400px] p-4"></div>
+    {:else}
+      <button
+        class="btn btn-primary w-full mt-2"
+        disabled={!newTitle.trim() || !newType || creating}
+        on:click={saveNewDoc}
+      >
+        {#if creating}
+          <span class="loading loading-spinner loading-xs"></span>
+          Saving...
+        {:else}
+          Save &amp; Commit
+        {/if}
+      </button>
     {/if}
   </div>
 
@@ -538,6 +576,10 @@
     status={frontmatter.status ?? ''}
     type={frontmatter.type ?? 'doc'}
     source={frontmatter.source ?? ''}
+    pinned={currentPinned}
+    onTogglePin={handleTogglePin}
+    binned={currentInBin}
+    onToggleBin={handleToggleBin}
     {editing}
     {saving}
     hasToken={!!$config.token}
@@ -560,7 +602,7 @@
   {/if}
 
   {#if editing}
-    <div bind:this={editorEl} class="border border-base-300 rounded-lg min-h-[400px] p-4"></div>
+    <div bind:this={editorEl} class="editor-surface"></div>
   {:else}
     <article class="prose max-w-none">
       {@html renderedHtml}
@@ -612,100 +654,103 @@
 
   /* Create flow */
   .create-flow {
-    max-width: 540px;
-  }
-  .create-heading {
-    font-size: 1.4rem;
-    font-weight: 700;
-    margin: 0 0 1.5rem 0;
-  }
-  .create-form {
     display: flex;
     flex-direction: column;
-    gap: 0.75rem;
-  }
-  .form-control {
-    display: flex;
-    flex-direction: column;
-    gap: 0.25rem;
-  }
-  .label {
-    padding: 0;
-  }
-  .label-text {
-    font-size: 0.8rem;
-    opacity: 0.7;
+    min-height: calc(100vh - 6rem);
   }
 
-  /* Type pills */
-  .type-pills {
+  /* Title: inline heading input */
+  .create-title-input {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: 2rem;
+    font-weight: 700;
+    line-height: 1.2;
+    background: none;
+    border: none;
+    outline: none;
+    width: 100%;
+    color: var(--color-base-content);
+    padding: 0;
+    margin: 0 0 0.25rem 0;
+  }
+  .create-title-input::placeholder {
+    color: var(--color-base-content);
+    opacity: 0.2;
+  }
+
+  /* Meta line: date + author */
+  .create-meta-line {
     display: flex;
-    gap: 0.5rem;
-    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: center;
+    font-family: 'Nunito', sans-serif;
+    font-size: 0.75rem;
+    opacity: 0.35;
+    margin-bottom: 0.75rem;
   }
-  .type-pill {
-    font-size: 0.78rem;
-    font-weight: 600;
+
+  /* Type badges */
+  .create-type-badges {
+    display: flex;
+    gap: 0.4rem;
+    margin-bottom: 0.75rem;
+  }
+  .create-type-badge {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: 0.7rem;
+    font-weight: 700;
     text-transform: uppercase;
-    letter-spacing: 0.03em;
-    padding: 0.4em 1em;
+    letter-spacing: 0.04em;
+    padding: 0.3em 0.8em;
     border-radius: 999px;
-    border: 1.5px solid color-mix(in oklch, var(--pill-color) 35%, transparent);
-    background: color-mix(in oklch, var(--pill-color) 8%, transparent);
-    color: var(--pill-color);
+    border: 1.5px solid color-mix(in oklch, var(--color-base-300) 60%, transparent);
+    background: transparent;
+    color: var(--color-base-content);
+    opacity: 0.4;
     cursor: pointer;
-    transition: all 0.15s;
+    transition: all 0.12s ease;
   }
-  .type-pill:hover {
-    background: color-mix(in oklch, var(--pill-color) 15%, transparent);
+  .create-type-badge:hover {
+    opacity: 0.7;
+    border-color: color-mix(in oklch, var(--badge-color) 40%, transparent);
   }
-  .type-pill-active {
-    background: color-mix(in oklch, var(--pill-color) 20%, transparent);
-    border-color: var(--pill-color);
-    box-shadow: 0 0 0 1px color-mix(in oklch, var(--pill-color) 25%, transparent);
+  .create-type-badge.selected {
+    opacity: 1;
+    color: var(--badge-color);
+    border-color: var(--badge-color);
+    background: color-mix(in oklch, var(--badge-color) 12%, transparent);
+  }
+
+  /* Editor fills remaining space */
+  .create-editor-wrap {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+  }
+  .create-editor-full {
+    flex: 1;
+    min-height: 300px;
   }
 
   /* ID preview */
   .id-preview {
-    font-family: 'JetBrains Mono', 'Fira Code', monospace;
-    font-size: 0.8rem;
-    padding: 0.5rem 0.75rem;
-    border-radius: 0.375rem;
-    background: color-mix(in oklch, var(--pico-card-background-color, var(--pico-background-color)) 80%, transparent);
-    border: 1px solid color-mix(in oklch, var(--pico-muted-border-color, #ddd) 50%, transparent);
-    opacity: 0.7;
+    font-family: 'Fira Code', monospace;
+    font-size: 0.78rem;
+    padding: 0.4rem 0.6rem;
+    border-radius: 0.25rem;
+    background: color-mix(in oklch, var(--color-base-300) 30%, transparent);
+    opacity: 0.8;
   }
   .id-dir {
     opacity: 0.5;
   }
   .id-file {
     font-weight: 600;
+    color: var(--color-primary);
   }
   .id-ext {
     opacity: 0.4;
-  }
-
-  /* Create editor header */
-  .create-editor-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    flex-wrap: wrap;
-    gap: 0.75rem;
-    margin-bottom: 1rem;
-  }
-  .create-editor-meta {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-  }
-  .create-editor-title {
-    font-weight: 600;
-    font-size: 1.1rem;
-  }
-  .create-editor-actions {
-    display: flex;
-    gap: 0.5rem;
   }
 
   /* Map table of contents */

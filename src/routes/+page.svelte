@@ -85,7 +85,7 @@
     totalLinks = allDocs.reduce((sum, d) => sum + (d.links ? d.links.length : 0), 0);
 
     // Gravity: top 8 notes by connection count
-    const notes = allDocs.filter(d => d.type === 'note');
+    const notes = allDocs.filter(d => d.type === 'atom');
     const withCounts = notes.map(d => ({
       ...d,
       connections: (d.links?.length || 0) + (d.backlinks?.length || 0),
@@ -349,7 +349,7 @@
     top: 0;
     left: 0;
     bottom: 0;
-    background: linear-gradient(to right, color-mix(in oklch, #d4883a 12%, transparent), color-mix(in oklch, #d4883a 4%, transparent));
+    background: linear-gradient(to right, color-mix(in oklch, var(--color-accent) 12%, transparent), color-mix(in oklch, var(--color-accent) 4%, transparent));
     border-radius: 0.3rem;
     pointer-events: none;
   }
@@ -385,7 +385,7 @@
   .mc-gravity-in {
     font-family: 'Fira Code', monospace;
     font-size: 0.7rem;
-    color: #d4883a;
+    color: var(--color-accent);
     opacity: 0.7;
     white-space: nowrap;
   }
@@ -453,7 +453,7 @@
     bottom: 0;
     left: 0;
     right: 0;
-    background: linear-gradient(to top, color-mix(in oklch, #d4883a 15%, transparent), color-mix(in oklch, #d4883a 35%, transparent));
+    background: linear-gradient(to top, color-mix(in oklch, var(--color-accent) 15%, transparent), color-mix(in oklch, var(--color-accent) 35%, transparent));
     border-radius: 0 0 0.3rem 0.3rem;
     transition: height 0.3s ease;
     display: flex;
@@ -466,7 +466,7 @@
     font-family: 'Fira Code', monospace;
     font-size: 0.8rem;
     font-weight: 700;
-    color: #d4883a;
+    color: var(--color-accent);
     opacity: 0.9;
   }
 
@@ -512,7 +512,7 @@
   }
 
   .mc-orphan-card:hover {
-    border-left: 2px solid #d4883a;
+    border-left: 2px solid var(--color-accent);
     box-shadow: 0 4px 12px 0 rgba(0, 0, 0, 0.2);
     transform: translateY(-2px);
   }

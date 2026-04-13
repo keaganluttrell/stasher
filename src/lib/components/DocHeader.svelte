@@ -10,6 +10,10 @@
   export let editing = false;
   export let saving = false;
   export let hasToken = false;
+  export let pinned = false;
+  export let onTogglePin = () => {};
+  export let binned = false;
+  export let onToggleBin = () => {};
   export let onEdit = () => {};
   export let onSave = () => {};
   export let onCancel = () => {};
@@ -40,7 +44,7 @@
   {/if}
 
   <!-- Source indicator for source notes -->
-  {#if type === 'source' && source}
+  {#if type === 'note' && source}
     <p class="text-xs opacity-40 mt-1.5 flex items-center gap-1.5">
       <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
         <path stroke-linecap="round" stroke-linejoin="round" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
@@ -66,7 +70,37 @@
       {/if}
     </div>
 
-    <div class="flex gap-2 shrink-0">
+    <div class="flex gap-2 shrink-0 items-center">
+      <!-- Pin toggle -->
+      <button
+        class="pin-toggle-btn"
+        class:pinned
+        on:click={onTogglePin}
+        title={pinned ? 'Unpin document' : 'Pin document'}
+        aria-label={pinned ? 'Unpin document' : 'Pin document'}
+      >
+        {#if pinned}
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M16 4a1 1 0 0 0-1.414 0L12 6.586 9.414 4A1 1 0 0 0 8 4v7.586l-3.293 3.293a1 1 0 1 0 1.414 1.414L9 13.414V20a1 1 0 0 0 1.707.707L12 19.414l1.293 1.293A1 1 0 0 0 15 20v-6.586l2.879-2.879a1 1 0 1 0-1.414-1.414L14 11.586V4z" />
+          </svg>
+        {:else}
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z" />
+          </svg>
+        {/if}
+      </button>
+      <!-- Bin toggle -->
+      <button
+        class="bin-toggle-btn"
+        class:binned
+        on:click={onToggleBin}
+        title={binned ? 'Remove from bin' : 'Mark for deletion'}
+        aria-label={binned ? 'Remove from bin' : 'Mark for deletion'}
+      >
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill={binned ? 'currentColor' : 'none'} viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+        </svg>
+      </button>
       {#if editing}
         <button class="btn btn-primary btn-sm" on:click={onSave} disabled={saving}>
           {#if saving}
@@ -94,4 +128,59 @@
 </div>
 
 <style>
+  .pin-toggle-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 2rem;
+    height: 2rem;
+    border-radius: 0.375rem;
+    border: 1px solid color-mix(in oklch, var(--color-base-300, #374151) 40%, transparent);
+    background: transparent;
+    color: var(--color-base-content, #a6adbb);
+    opacity: 0.4;
+    cursor: pointer;
+    transition: all 0.15s ease;
+  }
+
+  .pin-toggle-btn:hover {
+    opacity: 0.8;
+    border-color: var(--color-primary, #546e7a);
+    color: var(--color-primary, #546e7a);
+  }
+
+  .pin-toggle-btn.pinned {
+    opacity: 0.9;
+    color: var(--color-primary, #546e7a);
+    border-color: var(--color-primary, #546e7a);
+    background: color-mix(in oklch, var(--color-primary, #546e7a) 10%, transparent);
+  }
+
+  .bin-toggle-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 2rem;
+    height: 2rem;
+    border-radius: 0.375rem;
+    border: 1px solid color-mix(in oklch, var(--color-base-300, #374151) 40%, transparent);
+    background: transparent;
+    color: var(--color-base-content, #a6adbb);
+    opacity: 0.4;
+    cursor: pointer;
+    transition: all 0.15s ease;
+  }
+
+  .bin-toggle-btn:hover {
+    opacity: 0.8;
+    border-color: var(--color-error, #ef4444);
+    color: var(--color-error, #ef4444);
+  }
+
+  .bin-toggle-btn.binned {
+    opacity: 0.9;
+    color: var(--color-error, #ef4444);
+    border-color: var(--color-error, #ef4444);
+    background: color-mix(in oklch, var(--color-error, #ef4444) 10%, transparent);
+  }
 </style>

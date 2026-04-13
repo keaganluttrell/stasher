@@ -7,7 +7,13 @@
   import { config } from '$lib/config.js';
   import { user, authState } from '$lib/auth.js';
 
+  import { pins } from '$lib/stores/pins.js';
+  import { bin } from '$lib/stores/bin.js';
+
   export let onSearch = () => {};
+  export let onHistory = () => {};
+  export let onPins = () => {};
+  export let onBin = () => {};
 
   // Platform detection
   $: isMac = browser && /Mac|iPhone|iPad|iPod/.test(navigator.platform);
@@ -21,15 +27,18 @@
   $: canEdit = $editorState.canEdit;
 
   // Build visible shortcuts
-  $: shortcuts = buildShortcuts(isDocPage, editing, canEdit, pathname);
+  $: shortcuts = buildShortcuts(isDocPage, editing, canEdit, pathname, $pins, $bin);
 
   // Current pathname for active state detection
   $: pathname = $page.url.pathname;
 
-  function buildShortcuts(isDoc, ed, can, _pathname) {
+  function buildShortcuts(isDoc, ed, can, _pathname, _pins, _bin) {
     const items = [
+      // Navigation
       { key: 'K', mod: true, label: 'Search', action: () => onSearch(), icon: 'search', active: false },
       { key: 'I', mod: true, label: 'Home', action: () => goto(base + '/'), icon: 'home', active: pathname === base + '/' || pathname === base },
+      { key: '.', mod: true, label: 'Settings', action: () => goto(base + '/settings'), icon: 'settings', active: pathname.startsWith(base + '/settings') },
+      // Documents
       { key: 'J', mod: true, label: 'Create', action: () => goto(base + '/doc/new'), icon: 'create', active: false },
     ];
 
@@ -42,8 +51,18 @@
       items.push({ key: 'Esc', label: 'Cancel', action: () => $editorState.cancelEdit(), icon: 'cancel', noMod: true, active: false });
     }
 
-    // Settings always last
-    items.push({ key: '.', mod: true, label: 'Settings', action: () => goto(base + '/settings'), icon: 'settings', active: pathname.startsWith(base + '/settings') });
+    // Collections
+    if (isDoc && !_pathname.endsWith('/doc/new')) {
+      const slug = _pathname.replace(base + '/doc/', '');
+      const pinned = $pins.some((p) => p.slug === slug);
+      const inBin = $bin.some((b) => b.slug === slug);
+      items.push({ key: 'B', mod: true, label: pinned ? 'Unpin' : 'Pin', action: () => window.dispatchEvent(new CustomEvent('stasher:toggle-pin', { detail: { slug } })), icon: 'pin', active: pinned });
+      items.push({ key: 'D', mod: true, label: inBin ? 'Restore' : 'Delete', action: () => window.dispatchEvent(new CustomEvent('stasher:toggle-bin', { detail: { slug } })), icon: 'bin', active: inBin });
+    }
+
+    items.push({ key: "'", mod: true, label: 'Pins', action: () => onPins(), icon: 'pins', active: false });
+    items.push({ key: ';', mod: true, label: 'Bin', action: () => onBin(), icon: 'bin', active: false });
+    items.push({ key: 'U', mod: true, label: 'History', action: () => onHistory(), icon: 'history', active: false });
 
     return items;
   }

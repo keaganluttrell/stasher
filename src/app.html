@@ -9,7 +9,7 @@
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@700;800;900&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Nunito:wght@400;600;700&family=Fira+Code:wght@400;500;700&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@700;800;900&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Nunito:wght@400;600;700&family=Fira+Code:wght@300;400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600;700&display=swap" rel="stylesheet" />
     %sveltekit.head%
     <style>
       /* ── Markdown / Prose typography ── */
@@ -162,6 +162,416 @@
         height: auto;
         border-radius: 0.5em;
         margin: 1em 0;
+      }
+      /* Editor surface */
+      .editor-surface {
+        background: var(--color-base-200);
+        border-radius: 0.5rem;
+        padding: 1.5rem 1.75rem;
+        min-height: 300px;
+        transition: box-shadow 0.15s ease;
+        box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.08);
+        cursor: text;
+      }
+
+      .editor-surface:focus-within {
+        box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.08), 0 0 0 2px color-mix(in oklch, var(--color-primary) 20%, transparent);
+      }
+
+      .editor-surface .milkdown {
+        padding: 0 !important;
+        margin: 0 !important;
+      }
+      .editor-surface .milkdown,
+      .editor-surface .ProseMirror {
+        outline: none !important;
+        font-family: 'Nunito', sans-serif;
+        font-size: 0.95rem;
+        line-height: 1.45;
+        color: var(--color-base-content);
+        padding: 0 !important;
+        margin: 0 !important;
+      }
+      .editor-surface .milkdown-menu,
+      .editor-surface .milkdown > div:first-child:not(.ProseMirror) {
+        display: none !important;
+      }
+
+      .editor-surface .ProseMirror:focus {
+        outline: none !important;
+      }
+
+      .editor-surface .ProseMirror p.is-editor-empty:first-child::before {
+        content: 'Start writing...';
+        color: var(--color-base-content);
+        opacity: 0.25;
+        float: left;
+        pointer-events: none;
+        height: 0;
+      }
+
+      .editor-surface .ProseMirror h1,
+      .editor-surface .ProseMirror h2,
+      .editor-surface .ProseMirror h3 {
+        font-family: 'Plus Jakarta Sans', sans-serif;
+      }
+
+      .editor-surface .ProseMirror code {
+        font-family: 'Fira Code', monospace;
+      }
+
+      /* Slash command menu */
+      .slash-menu {
+        z-index: 10000;
+        background: var(--color-base-200);
+        border: 1px solid var(--color-base-300);
+        border-radius: 0.5rem;
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
+        padding: 0.3rem;
+        min-width: 180px;
+        max-height: 280px;
+        overflow-y: auto;
+        display: flex;
+        flex-direction: column;
+      }
+      .slash-item {
+        display: flex;
+        align-items: center;
+        gap: 0.6rem;
+        padding: 0.45rem 0.6rem;
+        border: none;
+        background: transparent;
+        color: var(--color-base-content);
+        font-family: 'Nunito', sans-serif;
+        font-size: 0.85rem;
+        cursor: pointer;
+        border-radius: 0.3rem;
+        text-align: left;
+        transition: background 0.08s;
+        width: 100%;
+      }
+      .slash-item:hover,
+      .slash-item-active {
+        background: color-mix(in oklch, var(--color-primary) 12%, transparent);
+      }
+      .slash-item-active .slash-label {
+        color: var(--color-primary);
+      }
+      .slash-icon {
+        font-family: 'Fira Code', monospace;
+        font-size: 0.75rem;
+        font-weight: 600;
+        width: 1.5rem;
+        text-align: center;
+        opacity: 0.45;
+        flex-shrink: 0;
+      }
+      .slash-label {
+        font-weight: 500;
+      }
+      .slash-empty {
+        padding: 0.75rem;
+        text-align: center;
+        font-size: 0.8rem;
+        opacity: 0.35;
+        font-family: 'Nunito', sans-serif;
+      }
+
+      /* Milkdown: inline tooltip toolbar */
+      .milkdown .tooltip,
+      .milkdown [data-tooltip] {
+        background: var(--color-base-200) !important;
+        border: 1px solid var(--color-base-300) !important;
+        border-radius: 0.4rem !important;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2) !important;
+        padding: 0.25rem !important;
+      }
+
+      .milkdown .tooltip button,
+      .milkdown [data-tooltip] button {
+        color: var(--color-base-content) !important;
+        border-radius: 0.25rem !important;
+        padding: 0.3rem 0.5rem !important;
+        transition: background 0.1s !important;
+      }
+
+      .milkdown .tooltip button:hover,
+      .milkdown [data-tooltip] button:hover,
+      .milkdown .tooltip button[data-active],
+      .milkdown [data-tooltip] button[data-active] {
+        background: color-mix(in oklch, var(--color-primary) 15%, transparent) !important;
+        color: var(--color-primary) !important;
+      }
+
+      /* Milkdown: block handle */
+      .milkdown [data-block-handle] {
+        color: var(--color-base-content) !important;
+        opacity: 0.2;
+        transition: opacity 0.1s;
+        cursor: grab;
+      }
+
+      .milkdown [data-block-handle]:hover {
+        opacity: 0.5;
+      }
+
+      /* Milkdown: cursor drop indicator */
+      .ProseMirror-dropcursor {
+        color: var(--color-primary) !important;
+      }
+
+      /* Milkdown: task lists (GFM) */
+      .editor-surface .ProseMirror ul[data-type="taskList"] {
+        list-style: none;
+        padding-left: 0;
+      }
+
+      .editor-surface .ProseMirror ul[data-type="taskList"] li {
+        display: flex;
+        align-items: flex-start;
+        gap: 0.5rem;
+      }
+
+      .editor-surface .ProseMirror ul[data-type="taskList"] li input[type="checkbox"] {
+        margin-top: 0.3rem;
+        accent-color: var(--color-primary);
+      }
+
+      /* Milkdown: tables (GFM) */
+      .editor-surface .ProseMirror table {
+        width: 100%;
+        border-collapse: collapse;
+        margin: 1rem 0;
+      }
+
+      .editor-surface .ProseMirror th,
+      .editor-surface .ProseMirror td {
+        border: 1px solid var(--color-base-300);
+        padding: 0.4rem 0.6rem;
+        text-align: left;
+      }
+
+      .editor-surface .ProseMirror th {
+        background: var(--color-base-200);
+        font-weight: 600;
+        font-size: 0.85rem;
+      }
+
+      /* Milkdown: strikethrough */
+      .editor-surface .ProseMirror s,
+      .editor-surface .ProseMirror del {
+        text-decoration: line-through;
+        opacity: 0.5;
+      }
+
+      /* Milkdown: code blocks in editor */
+      .editor-surface .ProseMirror pre {
+        background: color-mix(in oklch, var(--color-base-300) 40%, transparent);
+        border-radius: 0.4rem;
+        padding: 0.75rem 1rem;
+        font-family: 'Fira Code', monospace;
+        font-size: 0.85rem;
+        line-height: 1.6;
+        overflow-x: auto;
+      }
+
+      .editor-surface .ProseMirror :not(pre) > code {
+        background: color-mix(in oklch, var(--color-base-300) 30%, transparent);
+        padding: 0.1em 0.3em;
+        border-radius: 0.2rem;
+        font-family: 'Fira Code', monospace;
+        font-size: 0.85em;
+      }
+
+      /* Milkdown: blockquotes in editor */
+      .editor-surface .ProseMirror blockquote {
+        border-left: 3px solid var(--color-primary);
+        padding-left: 1rem;
+        margin-left: 0;
+        opacity: 0.8;
+        font-style: italic;
+      }
+
+      /* Milkdown: headings in editor */
+      .editor-surface .ProseMirror p { margin: 0.3em 0; }
+      .editor-surface .ProseMirror h1 { font-size: 1.75rem; margin: 0.6em 0 0.2em; }
+      .editor-surface .ProseMirror h2 { font-size: 1.35rem; margin: 0.5em 0 0.15em; }
+      .editor-surface .ProseMirror h3 { font-size: 1.1rem; margin: 0.4em 0 0.1em; }
+      .editor-surface .ProseMirror ul,
+      .editor-surface .ProseMirror ol { margin: 0.3em 0; padding-left: 1.25em; }
+      .editor-surface .ProseMirror li { margin: 0.1em 0; }
+      .editor-surface .ProseMirror li p { margin: 0; }
+      .editor-surface .ProseMirror blockquote { margin: 0.4em 0; }
+      .editor-surface .ProseMirror blockquote p { margin: 0.15em 0; }
+      .editor-surface .ProseMirror pre { margin: 0.4em 0; }
+      .editor-surface .ProseMirror hr { margin: 0.6em 0; }
+
+      /* Milkdown: horizontal rule */
+      .editor-surface .ProseMirror hr {
+        border: none;
+        border-top: 1px solid var(--color-base-300);
+        margin: 1.5rem 0;
+      }
+
+      /* Milkdown: links in editor */
+      .editor-surface .ProseMirror a {
+        color: var(--color-primary);
+        text-decoration: underline;
+        text-underline-offset: 2px;
+      }
+
+      /* Milkdown: images */
+      .editor-surface .ProseMirror img {
+        max-width: 100%;
+        border-radius: 0.4rem;
+      }
+
+      /* Milkdown: selection */
+      .editor-surface .ProseMirror ::selection {
+        background: color-mix(in oklch, var(--color-primary) 25%, transparent);
+      }
+
+      /* ── Terminal theme ── */
+      [data-theme=terminal] {
+        color-scheme: dark;
+        --color-base-100: #0a0a0a;
+        --color-base-200: #111111;
+        --color-base-300: #1a1a1a;
+        --color-base-content: #b0b0b0;
+        --color-primary: #00ff41;
+        --color-primary-content: #0a0a0a;
+        --color-secondary: #00cc33;
+        --color-secondary-content: #0a0a0a;
+        --color-accent: #ffd54f;
+        --color-accent-content: #0a0a0a;
+        --color-neutral: #1e1e1e;
+        --color-neutral-content: #8a8a8a;
+        --color-info: #29b6f6;
+        --color-info-content: #0a0a0a;
+        --color-success: #00e676;
+        --color-success-content: #0a0a0a;
+        --color-warning: #ffb300;
+        --color-warning-content: #0a0a0a;
+        --color-error: #ff1744;
+        --color-error-content: #0a0a0a;
+        --radius-selector: 0;
+        --radius-field: 0;
+        --radius-box: 0.15rem;
+        --border: 1px;
+        --depth: 0;
+        --noise: 0;
+      }
+
+      /* Terminal theme: font overrides */
+      [data-theme=terminal] body {
+        font-family: 'Fira Code', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace !important;
+        font-size: 14px;
+        letter-spacing: -0.01em;
+      }
+
+      [data-theme=terminal] .prose {
+        font-family: 'Fira Code', ui-monospace, monospace !important;
+        font-size: 0.9rem;
+        line-height: 1.65;
+      }
+
+      [data-theme=terminal] .prose h1,
+      [data-theme=terminal] .prose h2,
+      [data-theme=terminal] .prose h3,
+      [data-theme=terminal] .prose h4,
+      [data-theme=terminal] h1[style*="Plus Jakarta Sans"] {
+        font-family: 'Fira Code', ui-monospace, monospace !important;
+        letter-spacing: -0.02em;
+      }
+
+      [data-theme=terminal] .prose h1 { font-size: 1.6em; }
+      [data-theme=terminal] .prose h2 { font-size: 1.3em; }
+      [data-theme=terminal] .prose h3 { font-size: 1.1em; }
+
+      /* Terminal: heading prefix decorations */
+      [data-theme=terminal] .prose h2::before { content: '## '; opacity: 0.25; }
+      [data-theme=terminal] .prose h3::before { content: '### '; opacity: 0.25; }
+
+      /* Terminal: code blocks look native */
+      [data-theme=terminal] .prose pre {
+        background: #050505;
+        border: 1px solid #1a1a1a;
+        border-radius: 0;
+      }
+
+      [data-theme=terminal] .prose :not(pre) > code {
+        background: #151515;
+        border: 1px solid #1e1e1e;
+        border-radius: 0;
+        color: #00ff41;
+      }
+
+      /* Terminal: blockquotes */
+      [data-theme=terminal] .prose blockquote {
+        border-left-color: #00ff41;
+        background: #050505;
+        border-radius: 0;
+      }
+
+      /* Terminal: links */
+      [data-theme=terminal] .prose a {
+        color: #ffd54f;
+        text-decoration: underline;
+        text-decoration-style: dashed;
+      }
+
+      [data-theme=terminal] .prose a:hover {
+        color: #00ff41;
+      }
+
+      /* Terminal: tables */
+      [data-theme=terminal] .prose th,
+      [data-theme=terminal] .prose td {
+        border-color: #1e1e1e;
+      }
+
+      [data-theme=terminal] .prose th {
+        background: #111111;
+        color: #00ff41;
+        text-transform: uppercase;
+        font-size: 0.8em;
+        letter-spacing: 0.05em;
+      }
+
+      /* Terminal: cursor blink on brand name */
+      [data-theme=terminal] .keybar-logo-text::after,
+      [data-theme=terminal] [style*="font-family: 'Unbounded'"]::after {
+        content: '_';
+        animation: terminal-blink 1s step-end infinite;
+        opacity: 0.6;
+      }
+
+      @keyframes terminal-blink {
+        50% { opacity: 0; }
+      }
+
+      /* Terminal: sharper borders everywhere */
+      [data-theme=terminal] .card,
+      [data-theme=terminal] .btn,
+      [data-theme=terminal] .input,
+      [data-theme=terminal] .badge {
+        border-radius: 0 !important;
+      }
+
+      /* Terminal: scanline effect (subtle) */
+      [data-theme=terminal] body::after {
+        content: '';
+        position: fixed;
+        inset: 0;
+        pointer-events: none;
+        z-index: 99999;
+        background: repeating-linear-gradient(
+          0deg,
+          transparent,
+          transparent 2px,
+          rgba(0, 0, 0, 0.03) 2px,
+          rgba(0, 0, 0, 0.03) 4px
+        );
       }
     </style>
   </head>

@@ -3,15 +3,15 @@
   export let size = 'sm'; // 'sm' for lists, 'md' for headers
 
   const TYPE_COLORS = {
-    note:   '#38bdf8',
-    source: '#a78bfa',
+    atom:   '#38bdf8',
+    note:   '#a78bfa',
     map:    '#f59e0b',
     doc:    '#94a3b8',
   };
 
   const TYPE_LABELS = {
+    atom:   'atom',
     note:   'note',
-    source: 'source',
     map:    'map',
     doc:    'doc',
   };

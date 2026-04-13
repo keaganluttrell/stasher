@@ -10,11 +10,21 @@
   import { user, authState, initAuth } from '$lib/auth.js';
   import { loadPreferences, savePreferences } from '$lib/preferences.js';
   import { editorState } from '$lib/stores/editor.js';
+  import { pins, togglePin, isPinned } from '$lib/stores/pins.js';
+  import { bin, toggleBin } from '$lib/stores/bin.js';
+  import { showToast } from '$lib/stores/toast.js';
   import CommandPalette from '$lib/components/CommandPalette.svelte';
+  import HistoryPanel from '$lib/components/HistoryPanel.svelte';
+  import PinnedPanel from '$lib/components/PinnedPanel.svelte';
+  import BinPanel from '$lib/components/BinPanel.svelte';
+  import Toast from '$lib/components/Toast.svelte';
   import KeyBar from '$lib/components/KeyBar.svelte';
   import AuthGate from '$lib/components/AuthGate.svelte';
 
   let commandPaletteOpen = false;
+  let historyPanelOpen = false;
+  let pinsPanelOpen = false;
+  let binPanelOpen = false;
 
   // Gate: show the app only when authenticated
   $: authenticated = $authState === 'authenticated';
@@ -25,9 +35,10 @@
 
   // ── Git-backed preferences ─────────────────────────────────────────
   async function loadUserPreferences() {
-    if (!$user || !$config.owner || !$config.repo) return;
+    const username = $user?.login || $config.owner;
+    if (!username || !$config.owner || !$config.repo) return;
     try {
-      prefs = await loadPreferences($user.login, $config.owner, $config.repo, $config.branch);
+      prefs = await loadPreferences(username, $config.owner, $config.repo, $config.branch);
       if (prefs.theme) {
         theme.set(prefs.theme);
       }
@@ -37,7 +48,8 @@
   }
 
   function schedulePrefsSave() {
-    if (!$user || !$config.owner || !$config.repo) return;
+    const username = $user?.login || $config.owner;
+    if (!username || !$config.owner || !$config.repo || !$config.token) return;
     if (prefsSaveTimer) clearTimeout(prefsSaveTimer);
     prefsSaveTimer = setTimeout(async () => {
       if (!prefs) prefs = {};
@@ -45,8 +57,9 @@
         ...prefs,
         theme: $theme
       };
+      const saveUsername = $user?.login || $config.owner;
       const newSha = await savePreferences(
-        $user.login, updatedPrefs, $config.owner, $config.repo, $config.branch
+        saveUsername, updatedPrefs, $config.owner, $config.repo, $config.branch
       );
       if (newSha) {
         prefs = { ...updatedPrefs, _sha: newSha };
@@ -77,9 +90,10 @@
     }
   });
 
-  // Keep DOM in sync with theme
+  // Keep DOM in sync with theme + save prefs
   $: if (typeof document !== 'undefined') {
     document.documentElement.dataset.theme = $theme;
+    schedulePrefsSave();
   }
 
   function handleKeydown(e) {
@@ -120,8 +134,56 @@
       return;
     }
 
+    // Cmd+B: toggle pin
+    if (metaOrCtrl && e.key === 'b') {
+      const isDocPage = $page.url.pathname.startsWith(base + '/doc/') && !$page.url.pathname.endsWith('/doc/new');
+      if (isDocPage) {
+        e.preventDefault();
+        const slug = $page.url.pathname.replace(base + '/doc/', '');
+        window.dispatchEvent(new CustomEvent('stasher:toggle-pin', { detail: { slug } }));
+        return;
+      }
+    }
+
+    // Cmd+D: mark for deletion (bin)
+    if (metaOrCtrl && e.key === 'd') {
+      const isDocPage = $page.url.pathname.startsWith(base + '/doc/') && !$page.url.pathname.endsWith('/doc/new');
+      if (isDocPage) {
+        e.preventDefault();
+        const slug = $page.url.pathname.replace(base + '/doc/', '');
+        window.dispatchEvent(new CustomEvent('stasher:toggle-bin', { detail: { slug } }));
+        return;
+      }
+    }
+
     // Block remaining custom shortcuts if inside editable element
     if (inEditable) return;
+
+    // Cmd+U: history panel
+    if (metaOrCtrl && e.key === 'u') {
+      e.preventDefault();
+      historyPanelOpen = !historyPanelOpen;
+      pinsPanelOpen = false;
+      return;
+    }
+
+    // Cmd+': pinned panel
+    if (metaOrCtrl && e.key === "'") {
+      e.preventDefault();
+      pinsPanelOpen = !pinsPanelOpen;
+      historyPanelOpen = false;
+      binPanelOpen = false;
+      return;
+    }
+
+    // Cmd+;: bin panel
+    if (metaOrCtrl && e.key === ';') {
+      e.preventDefault();
+      binPanelOpen = !binPanelOpen;
+      historyPanelOpen = false;
+      pinsPanelOpen = false;
+      return;
+    }
 
     // Cmd+I: home
     if (metaOrCtrl && e.key === 'i') {
@@ -170,10 +232,22 @@
   </main>
 
   <!-- KeyBar: fixed top-left shortcuts with logo -->
-  <KeyBar onSearch={toggleSearch} />
+  <KeyBar onSearch={toggleSearch} onHistory={() => historyPanelOpen = !historyPanelOpen} onPins={() => pinsPanelOpen = !pinsPanelOpen} onBin={() => binPanelOpen = !binPanelOpen} />
 
   <!-- Command palette (Cmd+K) -->
   <CommandPalette bind:open={commandPaletteOpen} />
+
+  <!-- History panel (Cmd+H) -->
+  <HistoryPanel bind:open={historyPanelOpen} />
+
+  <!-- Pinned panel (Cmd+') -->
+  <PinnedPanel bind:open={pinsPanelOpen} />
+
+  <!-- Bin panel (Cmd+;) -->
+  <BinPanel bind:open={binPanelOpen} />
+
+  <!-- Toast notifications -->
+  <Toast />
 {:else}
   <AuthGate />
 {/if}

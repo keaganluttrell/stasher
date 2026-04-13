@@ -15,8 +15,8 @@
 
   const FILTERS = [
     { key: 'all',    label: 'All' },
-    { key: 'note',   label: 'Atoms' },
-    { key: 'source', label: 'Notes' },
+    { key: 'atom',   label: 'Atoms' },
+    { key: 'note',   label: 'Notes' },
     { key: 'map',    label: 'Maps' },
     { key: 'doc',    label: 'Docs' },
   ];

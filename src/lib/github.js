@@ -76,3 +76,58 @@ export async function createFile(owner, repo, slug, content, message, branch = '
   }
   return res.json();
 }
+
+/**
+ * Move a doc to trash-can/ (soft delete).
+ * GitHub has no move API — create at new path, delete at old path.
+ */
+export async function trashFile(owner, repo, slug, branch = 'main') {
+  const srcPath = `docs/${slug}.md`;
+  const get = await fetch(
+    `${BASE}/repos/${owner}/${repo}/contents/${srcPath}?ref=${branch}`,
+    { headers: headers() }
+  );
+  if (!get.ok) throw new Error(`GitHub ${get.status}: ${get.statusText}`);
+  const data = await get.json();
+
+  const trashPath = `docs/trash-can/${slug}.md`;
+  const put = await fetch(
+    `${BASE}/repos/${owner}/${repo}/contents/${trashPath}`,
+    { method: 'PUT', headers: headers(), body: JSON.stringify({ message: `trash: ${slug}`, content: data.content, branch }) }
+  );
+  if (!put.ok) throw new Error((await put.json()).message ?? `GitHub ${put.status}`);
+
+  const del = await fetch(
+    `${BASE}/repos/${owner}/${repo}/contents/${srcPath}`,
+    { method: 'DELETE', headers: headers(), body: JSON.stringify({ message: `trash: remove ${slug}`, sha: data.sha, branch }) }
+  );
+  if (!del.ok) throw new Error((await del.json()).message ?? `GitHub ${del.status}`);
+  return true;
+}
+
+/**
+ * Restore a doc from trash-can/ back to its original path.
+ */
+export async function restoreFile(owner, repo, slug, branch = 'main') {
+  const trashPath = `docs/trash-can/${slug}.md`;
+  const get = await fetch(
+    `${BASE}/repos/${owner}/${repo}/contents/${trashPath}?ref=${branch}`,
+    { headers: headers() }
+  );
+  if (!get.ok) throw new Error(`GitHub ${get.status}: ${get.statusText}`);
+  const data = await get.json();
+
+  const destPath = `docs/${slug}.md`;
+  const put = await fetch(
+    `${BASE}/repos/${owner}/${repo}/contents/${destPath}`,
+    { method: 'PUT', headers: headers(), body: JSON.stringify({ message: `restore: ${slug}`, content: data.content, branch }) }
+  );
+  if (!put.ok) throw new Error((await put.json()).message ?? `GitHub ${put.status}`);
+
+  const del = await fetch(
+    `${BASE}/repos/${owner}/${repo}/contents/${trashPath}`,
+    { method: 'DELETE', headers: headers(), body: JSON.stringify({ message: `restore: remove from trash ${slug}`, sha: data.sha, branch }) }
+  );
+  if (!del.ok) throw new Error((await del.json()).message ?? `GitHub ${del.status}`);
+  return true;
+}
